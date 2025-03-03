@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pale Blue Dot - Existential Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle, #000022, #000011);
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .content {
+            position: absolute;
+            z-index: 10;
+            width: 100%;
+            top: 65%; /* Weiter unten für mehr Platz oben */
+            transform: translateY(-50%);
+            text-align: center;
+        }
+        h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 18px;
+            max-width: 600px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg"></canvas>
+    <div class="content">
+        <h1>🌍 Pale Blue Dot</h1>
+        <p>Ein winziger Punkt im endlosen Universum – unsere Heimat.</p>
+    </div>
+    
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("bg"), antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Beleuchtung für das Universum
+        const ambientLight = new THREE.AmbientLight(0x888888);
+        scene.add(ambientLight);
+        
+        const hemiLight = new THREE.HemisphereLight(0xaaaaff, 0x222244, 1.5);
+        scene.add(hemiLight);
+
+        // Sterne erzeugen
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsCount = 1500;
+        const starVertices = new Float32Array(starsCount * 3);
+        for (let i = 0; i < starsCount * 3; i++) {
+            starVertices[i] = (Math.random() - 0.5) * 100;
+        }
+        starsGeometry.setAttribute('position', new THREE.BufferAttribute(starVertices, 3));
+        const starsMaterial = new THREE.PointsMaterial({ size: 0.07, color: 0xffffff });
+        const starsMesh = new THREE.Points(starsGeometry, starsMaterial);
+        scene.add(starsMesh);
+        
+        // Nebel erzeugen
+        const nebulaGeometry = new THREE.SphereGeometry(20, 64, 64);
+        const nebulaMaterial = new THREE.MeshStandardMaterial({
+            color: 0x112255,
+            transparent: true,
+            opacity: 0.4
+        });
+        const nebula = new THREE.Mesh(nebulaGeometry, nebulaMaterial);
+        scene.add(nebula);
+
+        // Pale Blue Dot: Kugel mit Farbe und leichtem Glow
+        const earthGeometry = new THREE.SphereGeometry(0.3, 32, 32);
+        const earthMaterial = new THREE.MeshStandardMaterial({ color: 0x3498db, emissive: 0x2060ff, emissiveIntensity: 0.5 });
+        const paleBlueDot = new THREE.Mesh(earthGeometry, earthMaterial);
+        paleBlueDot.position.set(0, 0, -10);
+        scene.add(paleBlueDot);
+
+        // Animation für Bewegung
+        function animate() {
+            requestAnimationFrame(animate);
+            starsMesh.rotation.y += 0.0005;
+            nebula.rotation.y += 0.001;
+            nebula.rotation.x += 0.0005;
+            paleBlueDot.position.y = Math.sin(Date.now() * 0.001) * 0.2;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Kameraeinstellungen
+        camera.position.z = 15;
+    </script>
+</body>
+</html>

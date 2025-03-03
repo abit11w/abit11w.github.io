@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kombinierter Tradingplan</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+            background-color: #111;
+            color: #f4f4f4;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #222;
+        }
+        h1, h2, h3, h4 {
+            color: #f4f4f4;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            display: flex;
+            align-items: center;
+            background: #333;
+            margin: 5px 0;
+            padding: 12px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .checklist li:hover {
+            background: #444;
+        }
+        .checklist input[type="checkbox"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            accent-color: #f4f4f4;
+        }
+        button {
+            padding: 10px;
+            margin-top: 10px;
+            background: #444;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="section">
+            <h1>Trading Journal & Visualisierungsübung</h1>
+            <h2>📌 Die Visualisierungsübung von Tom Hougaard</h2>
+            <ul class="checklist">
+                <li><input type="checkbox"> Mentale Desensibilisierung gegenüber Gewinnen und Verlusten</li>
+                <li><input type="checkbox"> Emotionale Balance im Trading</li>
+                <li><input type="checkbox"> Loslösung von impulsiven Reaktionen auf Marktbewegungen</li>
+            </ul>
+
+            <h3>🧠 Schritt-für-Schritt-Anleitung</h3>
+
+            <h4>🔹 1️⃣ Verluste mental durchleben</h4>
+            <ul class="checklist">
+                <li><input type="checkbox"> Setze dich in eine ruhige Umgebung, schließe die Augen.</li>
+                <li><input type="checkbox"> Stelle dir vor, dass du eine beträchtliche Geldsumme verlierst.</li>
+                <li><input type="checkbox"> Visualisiere, was du nicht mehr kaufen kannst.</li>
+                <li><input type="checkbox"> Akzeptiere den Verlust als realen Teil des Tradings.</li>
+                <li><input type="checkbox"> Spüre deine körperliche Reaktion und bleibe in diesem Zustand.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h1>Tradingplan & Checkliste</h1>
+            <h2>📌 Bestätigungen</h2>
+            <ul class="checklist">
+                <li><input type="checkbox"> 4H-Bestätigung für Indizes</li>
+                <li><input type="checkbox"> D-Bestätigung für Währungspaare</li>
+            </ul>
+        </div>
+
+        <button onclick="exportToCSV()">📥 CSV-Export</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let checkboxes = document.querySelectorAll(".checklist input[type='checkbox']");
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener("change", function () {
+                    trackCheckbox(this);
+                });
+            });
+
+            function trackCheckbox(checkbox) {
+                let logData = JSON.parse(localStorage.getItem("checkbox_log")) || [];
+                let entry = {
+                    id: checkbox.parentElement.textContent.trim(),
+                    timestamp: new Date().toLocaleString(),
+                    checked: checkbox.checked
+                };
+                logData.push(entry);
+                localStorage.setItem("checkbox_log", JSON.stringify(logData));
+            }
+        });
+
+        function exportToCSV() {
+            let logData = JSON.parse(localStorage.getItem("checkbox_log")) || [];
+            if (logData.length === 0) {
+                alert("Keine Daten zum Exportieren!");
+                return;
+            }
+
+            let csvContent = "Checkbox,Datum,Uhrzeit,Status\n";
+            logData.forEach(row => {
+                let status = row.checked ? "Checked" : "Unchecked";
+                let dateTime = row.timestamp.split(", ");
+                csvContent += `"${row.id}","${dateTime[0]}","${dateTime[1]}","${status}"\n`;
+            });
+
+            let blob = new Blob([csvContent], { type: "text/csv" });
+            let a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "checkbox_tracking.csv";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+</html>
