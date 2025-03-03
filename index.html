@@ -58,15 +58,14 @@
         document.body.appendChild(renderer.domElement);
 
         // Beleuchtung für den Totenkopf
-        const ambientLight = new THREE.AmbientLight(0x444444);
+        const ambientLight = new THREE.AmbientLight(0x888888); // Stärkeres Umgebungslicht
         scene.add(ambientLight);
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
+        
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 2);
         scene.add(hemiLight);
-
-        pointLight.intensity = 5; // Stärkeres Licht
-        pointLight.position.set(0, 5, 5); // Licht besser ausrichten
-        const pointLight = new THREE.PointLight(0xff0000, 2, 20);
-        pointLight.position.set(3, 3, 3);
+        
+        const pointLight = new THREE.PointLight(0xff0000, 5, 50);
+        pointLight.position.set(0, 5, 10);
         scene.add(pointLight);
         
         // Sicherstellen, dass die CORS-Fehler abgefangen werden
@@ -77,36 +76,41 @@
         
         // Lade das 3D-Totenkopf-Modell aus der hochgeladenen GLTF-Datei mit CORS-Support
         const loader = new THREE.GLTFLoader();
-        fetch('https://abit11w.github.io/scene.gltf', { mode: 'cors' })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                return response;
-            })
-            .then(() => {
-                loader.load('https://abit11w.github.io/scene.gltf', function(gltf) {
-                    const skull = gltf.scene;
-                    skull.scale.set(2, 2, 2);
-                    skull.position.set(0, -1, 0);
-                    scene.add(skull);
+        loader.load('https://abit11w.github.io/scene.gltf', function(gltf) {
+            console.log("Modell geladen", gltf);
+            const skull = gltf.scene;
+            skull.scale.set(3, 3, 3);
+            skull.position.set(0, -2, 0);
+            scene.add(skull);
 
-                    // Maussteuerung für Interaktivität
-                    document.addEventListener("mousemove", (event) => {
-                        skull.rotation.y = (event.clientX / window.innerWidth) * 2 - 1;
-                        skull.rotation.x = (event.clientY / window.innerHeight) * 2 - 1;
+            // Standardmaterial setzen, falls kein Material vorhanden ist
+            skull.traverse((child) => {
+                if (child.isMesh) {
+                    child.material = new THREE.MeshStandardMaterial({
+                        color: 0xffffff,
+                        metalness: 0.3,
+                        roughness: 0.5
                     });
+                }
+            });
 
-                    function animate() {
-                        requestAnimationFrame(animate);
-                        skull.rotation.y += 0.002;
-                        renderer.render(scene, camera);
-                    }
-                    animate();
-                }, undefined, handleError);
-            })
-            .catch(handleError);
+            // Maussteuerung für Interaktivität
+            document.addEventListener("mousemove", (event) => {
+                skull.rotation.y = (event.clientX / window.innerWidth) * 2 - 1;
+                skull.rotation.x = (event.clientY / window.innerHeight) * 2 - 1;
+            });
+
+            function animate() {
+                requestAnimationFrame(animate);
+                skull.rotation.y += 0.002;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }, undefined, handleError);
         
         // Kameraeinstellungen
-        camera.position.z = 5;
+        camera.position.set(0, 3, 10);
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
     </script>
 </body>
 </html>
