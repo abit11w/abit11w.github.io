@@ -72,7 +72,7 @@
         
         // Lade das 3D-Totenkopf-Modell aus der hochgeladenen GLTF-Datei mit CORS-Support
         const loader = new THREE.GLTFLoader();
-        fetch('http://localhost:8000/scene.gltf', { mode: 'cors' })
+        fetch('https://abit11w.github.io/scene.gltf', { mode: 'cors' })
             .then(response => {
                 if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
                 return response;
