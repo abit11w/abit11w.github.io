@@ -78,7 +78,7 @@
                 return response;
             })
             .then(() => {
-                loader.load('http://localhost:8000/scene.gltf', function(gltf) {
+                loader.load('https://abit11w.github.io/scene.gltf', function(gltf) {
                     const skull = gltf.scene;
                     skull.scale.set(2, 2, 2);
                     skull.position.set(0, -1, 0);
