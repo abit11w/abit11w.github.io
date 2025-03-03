@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memento Mori - Existential Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: black;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .content {
+            position: absolute;
+            z-index: 10;
+            width: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            text-align: center;
+        }
+        h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 18px;
+            max-width: 600px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg"></canvas>
+    <div class="content">
+        <h1>💀 Memento Mori</h1>
+        <p>Die Vergänglichkeit ist unausweichlich. Nutze deine Zeit weise.</p>
+    </div>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("bg"), antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Beleuchtung für den Totenkopf
+        const ambientLight = new THREE.AmbientLight(0x444444);
+        scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0xff0000, 2, 20);
+        pointLight.position.set(3, 3, 3);
+        scene.add(pointLight);
+        
+        // Sicherstellen, dass die CORS-Fehler abgefangen werden
+        function handleError(error) {
+            console.error('Fehler beim Laden des 3D-Totenkopf-Modells:', error);
+            alert('Fehler beim Laden des 3D-Modells! Prüfe CORS-Einstellungen und Serververfügbarkeit.');
+        }
+        
+        // Lade das 3D-Totenkopf-Modell aus der hochgeladenen GLTF-Datei mit CORS-Support
+        const loader = new THREE.GLTFLoader();
+        fetch('http://localhost:8000/scene.gltf', { mode: 'cors' })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return response;
+            })
+            .then(() => {
+                loader.load('http://localhost:8000/scene.gltf', function(gltf) {
+                    const skull = gltf.scene;
+                    skull.scale.set(2, 2, 2);
+                    skull.position.set(0, -1, 0);
+                    scene.add(skull);
+
+                    // Maussteuerung für Interaktivität
+                    document.addEventListener("mousemove", (event) => {
+                        skull.rotation.y = (event.clientX / window.innerWidth) * 2 - 1;
+                        skull.rotation.x = (event.clientY / window.innerHeight) * 2 - 1;
+                    });
+
+                    function animate() {
+                        requestAnimationFrame(animate);
+                        skull.rotation.y += 0.002;
+                        renderer.render(scene, camera);
+                    }
+                    animate();
+                }, undefined, handleError);
+            })
+            .catch(handleError);
+        
+        // Kameraeinstellungen
+        camera.position.z = 5;
+    </script>
+</body>
+</html>
