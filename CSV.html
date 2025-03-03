@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kombinierter Tradingplan</title>
+    <title>Tradingplan & Checkliste</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,10 +11,9 @@
             line-height: 1.6;
             background-color: #111;
             color: #f4f4f4;
-            transition: background-color 0.3s, color 0.3s;
         }
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: auto;
             padding: 20px;
         }
@@ -38,10 +37,9 @@
             margin: 5px 0;
             padding: 12px;
             border-radius: 5px;
-            transition: background 0.3s;
         }
-        .checklist li:hover {
-            background: #444;
+        .sub-checklist {
+            margin-left: 30px;
         }
         .checklist input[type="checkbox"] {
             margin-right: 10px;
@@ -61,87 +59,92 @@
         button:hover {
             background: #555;
         }
+        .currency-select {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            background: #333;
+            color: #f4f4f4;
+            border: none;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <h1>📌 Tradingplan & Checkliste</h1>
+        
         <div class="section">
-            <h1>Trading Journal & Visualisierungsübung</h1>
-            <h2>📌 Die Visualisierungsübung von Tom Hougaard</h2>
+            <h2>📌 Tagesvorbereitung</h2>
             <ul class="checklist">
-                <li><input type="checkbox"> Mentale Desensibilisierung gegenüber Gewinnen und Verlusten</li>
-                <li><input type="checkbox"> Emotionale Balance im Trading</li>
-                <li><input type="checkbox"> Loslösung von impulsiven Reaktionen auf Marktbewegungen</li>
-            </ul>
-
-            <h3>🧠 Schritt-für-Schritt-Anleitung</h3>
-
-            <h4>🔹 1️⃣ Verluste mental durchleben</h4>
-            <ul class="checklist">
-                <li><input type="checkbox"> Setze dich in eine ruhige Umgebung, schließe die Augen.</li>
-                <li><input type="checkbox"> Stelle dir vor, dass du eine beträchtliche Geldsumme verlierst.</li>
-                <li><input type="checkbox"> Visualisiere, was du nicht mehr kaufen kannst.</li>
-                <li><input type="checkbox"> Akzeptiere den Verlust als realen Teil des Tradings.</li>
-                <li><input type="checkbox"> Spüre deine körperliche Reaktion und bleibe in diesem Zustand.</li>
+                <li><input type="checkbox"> News checken (Wirtschaftskalender, wichtige Events)</li>
+                <li><input type="checkbox"> Top-Down-Analyse durchführen</li>
+                <ul class="sub-checklist">
+                    <li><input type="checkbox"> W (Wochenchart)</li>
+                    <li><input type="checkbox"> D (Tageschart)</li>
+                    <li><input type="checkbox"> 4H (4-Stunden-Chart)</li>
+                    <li><input type="checkbox"> 1H (1-Stunden-Chart)</li>
+                    <li><input type="checkbox"> 30MIN (30-Minuten-Chart)</li>
+                </ul>
+                <li><input type="checkbox"> EMAs überprüfen und Entfernung zum Preis analysieren</li>
+                <ul class="sub-checklist">
+                    <li><input type="checkbox"> 20 EMA</li>
+                    <li><input type="checkbox"> 50 EMA</li>
+                    <li><input type="checkbox"> 100 EMA</li>
+                    <li><input type="checkbox"> 200 EMA</li>
+                </ul>
+                <li>Währungspaare auswählen:
+                    <select class="currency-select" id="currency-pair">
+                        <option value="">Währungspaar wählen</option>
+                        <option value="EUR/USD">EUR/USD</option>
+                        <option value="GBP/USD">GBP/USD</option>
+                        <option value="USD/JPY">USD/JPY</option>
+                        <option value="AUD/USD">AUD/USD</option>
+                        <option value="USD/CAD">USD/CAD</option>
+                    </select>
+                </li>
             </ul>
         </div>
-
+        
         <div class="section">
-            <h1>Tradingplan & Checkliste</h1>
             <h2>📌 Bestätigungen</h2>
             <ul class="checklist">
-                <li><input type="checkbox"> 4H-Bestätigung für Indizes</li>
-                <li><input type="checkbox"> D-Bestätigung für Währungspaare</li>
+                <li><input type="checkbox"> Indizes: Mindestens eine 4H-Bestätigung erforderlich</li>
+                <li><input type="checkbox"> Währungspaare: Daily-Bestätigung erforderlich</li>
             </ul>
         </div>
 
+        <div class="section">
+            <h2>📌 Trading-Strategie</h2>
+            <ul class="checklist">
+                <li><input type="checkbox"> Unterstützung (D) prüfen</li>
+                <li><input type="checkbox"> Unterstützung (4H) prüfen</li>
+                <li><input type="checkbox"> Unterstützung (1H) prüfen</li>
+                <li><input type="checkbox"> Fibonacci-Level beachten (23-38%)</li>
+                <li><input type="checkbox"> Fibonacci-Level beachten (61.8%)</li>
+                <li><input type="checkbox"> Fibonacci-Level beachten (78.6%)</li>
+                <li><input type="checkbox"> An Unterstützungen nicht Short gehen, an Widerständen nicht Long gehen</li>
+                <li><input type="checkbox"> Niedrig einkaufen und hoch verkaufen</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>📌 Killzones - Highs & Lows</h2>
+            <ul class="checklist">
+                <li><input type="checkbox"> Asia Killzone High</li>
+                <li><input type="checkbox"> Asia Killzone Low</li>
+                <li><input type="checkbox"> London Killzone High</li>
+                <li><input type="checkbox"> London Killzone Low</li>
+                <li><input type="checkbox"> NY AM Killzone High</li>
+                <li><input type="checkbox"> NY AM Killzone Low</li>
+                <li><input type="checkbox"> NY PM Killzone High</li>
+                <li><input type="checkbox"> NY PM Killzone Low</li>
+                <li><input type="checkbox"> NY Lunch High</li>
+                <li><input type="checkbox"> NY Lunch Low</li>
+            </ul>
+        </div>
+        
         <button onclick="exportToCSV()">📥 CSV-Export</button>
     </div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let checkboxes = document.querySelectorAll(".checklist input[type='checkbox']");
-            
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener("change", function () {
-                    trackCheckbox(this);
-                });
-            });
-
-            function trackCheckbox(checkbox) {
-                let logData = JSON.parse(localStorage.getItem("checkbox_log")) || [];
-                let entry = {
-                    id: checkbox.parentElement.textContent.trim(),
-                    timestamp: new Date().toLocaleString(),
-                    checked: checkbox.checked
-                };
-                logData.push(entry);
-                localStorage.setItem("checkbox_log", JSON.stringify(logData));
-            }
-        });
-
-        function exportToCSV() {
-            let logData = JSON.parse(localStorage.getItem("checkbox_log")) || [];
-            if (logData.length === 0) {
-                alert("Keine Daten zum Exportieren!");
-                return;
-            }
-
-            let csvContent = "Checkbox,Datum,Uhrzeit,Status\n";
-            logData.forEach(row => {
-                let status = row.checked ? "Checked" : "Unchecked";
-                let dateTime = row.timestamp.split(", ");
-                csvContent += `"${row.id}","${dateTime[0]}","${dateTime[1]}","${status}"\n`;
-            });
-
-            let blob = new Blob([csvContent], { type: "text/csv" });
-            let a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = "checkbox_tracking.csv";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-    </script>
 </body>
 </html>
