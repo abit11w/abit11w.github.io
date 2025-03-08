@@ -3,114 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memento Mori - Existential Dashboard</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background: black;
-            color: white;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        canvas {
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        .content {
-            position: absolute;
-            z-index: 10;
-            width: 100%;
-            top: 50%;
-            transform: translateY(-50%);
-            text-align: center;
-        }
-        h1 {
-            font-size: 36px;
-            margin-bottom: 10px;
-        }
-        p {
-            font-size: 18px;
-            max-width: 600px;
-            margin: auto;
-        }
-    </style>
-</head>
-<body>
-    <canvas id="bg"></canvas>
-    <div class="content">
-        <h1>💀 Memento Mori</h1>
-        <p>Die Vergänglichkeit ist unausweichlich. Nutze deine Zeit weise.</p>
-    </div>
+    <title>📌 Moderner Tradingplan, Visualisierung & Journal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("bg"), antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+        tailwind.config = { darkMode: 'class' };
 
-        // Beleuchtung für den Totenkopf
-        const ambientLight = new THREE.AmbientLight(0x888888); // Stärkeres Umgebungslicht
-        scene.add(ambientLight);
-        
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 2);
-        scene.add(hemiLight);
-        
-        const pointLight = new THREE.PointLight(0xff0000, 5, 50);
-        pointLight.position.set(0, 5, 10);
-        scene.add(pointLight);
-        
-        // Sicherstellen, dass die CORS-Fehler abgefangen werden
-        function handleError(error) {
-            console.error('Fehler beim Laden des 3D-Totenkopf-Modells:', error);
-            alert('Fehler beim Laden des 3D-Modells! Prüfe CORS-Einstellungen und Serververfügbarkeit.');
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
         }
-        
-        // Lade das 3D-Totenkopf-Modell aus der hochgeladenen GLTF-Datei mit CORS-Support
-        const loader = new THREE.GLTFLoader();
-        loader.load('https://abit11w.github.io/scene.gltf', function(gltf) {
-            console.log("Modell geladen", gltf);
-            const skull = gltf.scene;
-            skull.scale.set(3, 3, 3);
-            skull.position.set(0, -2, 0);
-            scene.add(skull);
 
-            // Standardmaterial setzen, falls kein Material vorhanden ist
-            skull.traverse((child) => {
-                if (child.isMesh) {
-                    child.material = new THREE.MeshStandardMaterial({
-                        color: 0xffffff,
-                        metalness: 0.3,
-                        roughness: 0.5
-                    });
-                }
-            });
-
-            // Maussteuerung für Interaktivität
-            document.addEventListener("mousemove", (event) => {
-                skull.rotation.y = (event.clientX / window.innerWidth) * 2 - 1;
-                skull.rotation.x = (event.clientY / window.innerHeight) * 2 - 1;
-            });
-
-            function animate() {
-                requestAnimationFrame(animate);
-                skull.rotation.y += 0.002;
-                renderer.render(scene, camera);
+        function openTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            const activeTab = document.getElementById(tabName);
+            if (activeTab) {
+                activeTab.classList.remove('hidden');
             }
-            animate();
-        }, undefined, handleError);
-        
-        // Kameraeinstellungen
-        camera.position.set(0, 3, 10);
-        camera.lookAt(new THREE.Vector3(0, 0, 0));
+        }
+
+        function toggleTrendDisplay() {
+            const trend = document.querySelector('input[name="trend"]:checked').value;
+            const lows = document.querySelectorAll('.trend-low');
+            const highs = document.querySelectorAll('.trend-high');
+            
+            if (trend === 'long') {
+                lows.forEach(low => low.classList.remove('hidden'));
+                highs.forEach(high => high.classList.add('hidden'));
+            } else if (trend === 'short') {
+                lows.forEach(low => low.classList.add('hidden'));
+                highs.forEach(high => high.classList.remove('hidden'));
+            } else {
+                lows.forEach(low => low.classList.remove('hidden'));
+                highs.forEach(high => high.classList.remove('hidden'));
+            }
+        }
+
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,Abschnitt,Frage,Antwort/Status\n";
+
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                const sectionName = tab.id; 
+
+                // Trend-Auswahl speichern
+                const trendRadios = tab.querySelectorAll('input[name="trend"]');
+                trendRadios.forEach(radio => {
+                    if (radio.checked) {
+                        csvContent += `"${sectionName}","Trend","${radio.value}"\n`;
+                    }
+                });
+
+                // Alle Checkboxen speichern (auch versteckte)
+                tab.querySelectorAll('input[type=checkbox]').forEach((check) => {
+                    // Überprüfen, ob das übergeordnete Element versteckt ist
+                    const isHidden = check.closest('.trend-low, .trend-high')?.classList.contains('hidden') || false;
+                    if (!isHidden) {
+                        const text = check.parentElement.textContent.trim().replace(/,/g, ';');
+                        csvContent += `"${sectionName}","${text}","${check.checked ? 'Ja' : 'Nein'}"\n`;
+                    }
+                });
+
+                // Alle Texteingaben (Journaleinträge) erfassen
+                tab.querySelectorAll('textarea').forEach((area) => {
+                    const question = area.getAttribute('data-question').replace(/,/g, ';');
+                    const answer = area.value.replace(/,/g, ';');
+                    csvContent += `"${sectionName}","${question}","${answer}"\n`;
+                });
+            });
+
+            // CSV als Datei exportieren
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "tradingplan_visualisierung_journal.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            if (localStorage.getItem("darkMode") === "true") {
+                document.documentElement.classList.add("dark");
+            }
+            setTimeout(() => openTab('trading'), 100);
+            
+            // Event-Listener für Trend-Radio-Buttons
+            document.querySelectorAll('input[name="trend"]').forEach(radio => {
+                radio.addEventListener('change', toggleTrendDisplay);
+            });
+            
+            // Initial toggleTrendDisplay aufrufen
+            setTimeout(toggleTrendDisplay, 200);
+        });
     </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+
+    <div class="max-w-3xl mx-auto p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold">📌 Tradingplan, Visualisierung & Journal</h1>
+            <button onclick="toggleDarkMode()" class="px-4 py-2 bg-gray-700 text-white rounded-lg">🌗 Dark Mode</button>
+        </div>
+
+        <div class="flex space-x-4 mb-6">
+            <button onclick="openTab('trading')" class="px-4 py-2 bg-gray-600 text-white rounded-lg">📈 Tradingplan</button>
+            <button onclick="openTab('visualisierung')" class="px-4 py-2 bg-gray-700 text-white rounded-lg">🧘‍♂️ Visualisierung</button>
+            <button onclick="openTab('journal')" class="px-4 py-2 bg-gray-800 text-white rounded-lg">📓 Journal</button>
+        </div>
+
+        <!-- Tradingplan -->
+        <div id="trading" class="tab-content">
+            <section class="bg-gray-200 dark:bg-gray-800 rounded-lg p-4 mb-6">
+                <h2 class="text-xl font-semibold mb-2">📝 Tagesvorbereitung & Strategie</h2>
+                <ul class="mt-3 space-y-2">
+                    <li><input type="checkbox"> News checken (Wirtschaftskalender)</li>
+                    <li><input type="checkbox"> Top-Down-Analyse (W, D, 4H, 1H, 30MIN)</li>
+                    <li><input type="checkbox"> EMA-Analyse (20,50,100,200)</li>
+                    <li><input type="checkbox"> Unterstützung (D, 4H, 1H) prüfen</li>
+                    <li><input type="checkbox"> Fibonacci-Level beachten (23-38%, 61.8%, 78.6%)</li>
+                    <li><input type="checkbox"> Keine Shorts an Unterstützungen, keine Longs an Widerständen</li>
+                    <li><input type="checkbox"> Niedrig kaufen, hoch verkaufen</li>
+                </ul>
+            </section>
+            
+            <section class="bg-gray-200 dark:bg-gray-800 rounded-lg p-4 mb-6">
+                <h2 class="text-xl font-semibold mb-2">📈 Markttrend</h2>
+                <div class="flex space-x-6">
+                    <label class="flex items-center space-x-2">
+                        <input type="radio" name="trend" value="long" checked class="w-4 h-4">
+                        <span>Long (LOWs anzeigen)</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="radio" name="trend" value="short" class="w-4 h-4">
+                        <span>Short (HIGHs anzeigen)</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="radio" name="trend" value="both" class="w-4 h-4">
+                        <span>Beides anzeigen</span>
+                    </label>
+                </div>
+            </section>
+            
+            <section class="bg-gray-200 dark:bg-gray-800 rounded-lg p-4 mb-6">
+                <h2 class="text-xl font-semibold mb-2">✅ Bestätigungen</h2>
+                <ul class="mt-3 space-y-2">
+                    <li><input type="checkbox"> 8 Uhr 4H Kerze abgewartet?</li>
+                    <li><input type="checkbox"> 12 Uhr 4H Kerze abgewartet?</li>
+                    <li><input type="checkbox"> 16 Uhr 4H Kerze abgewartet?</li>
+                    <li><input type="checkbox"> 20 Uhr 4H Kerze abgewartet?</li>
+                </ul>
+            </section>
+            
+            <section class="bg-gray-200 dark:bg-gray-800 rounded-lg p-4 mb-6">
+                <h2 class="text-xl font-semibold mb-2">⏰ Killzones</h2>
+                <ul class="mt-3 space-y-2">
+                    <li>Asia Killzone</li>
+                    <li class="ml-4 trend-low"><input type="checkbox"> Asia AM LOW identifiziert</li>
+                    <li class="ml-4 trend-high"><input type="checkbox"> Asia AM HIGH identifiziert</li>
+                    
+                    <li>London Killzone</li>
+                    <li class="ml-4 trend-low"><input type="checkbox"> London AM LOW identifiziert</li>
+                    <li class="ml-4 trend-high"><input type="checkbox"> London AM HIGH identifiziert</li>
+                    
+                    <li>NY AM Killzone</li>
+                    <li class="ml-4 trend-low"><input type="checkbox"> NY AM LOW identifiziert</li>
+                    <li class="ml-4 trend-high"><input type="checkbox"> NY AM HIGH identifiziert</li>
+                    
+                    <li>NY Lunch</li>
+                    <li class="ml-4 trend-low"><input type="checkbox"> NY Lunch LOW identifiziert</li>
+                    <li class="ml-4 trend-high"><input type="checkbox"> NY Lunch HIGH identifiziert</li>
+                    
+                    <li>NY PM Killzone</li>
+                    <li class="ml-4 trend-low"><input type="checkbox"> NY PM LOW identifiziert</li>
+                    <li class="ml-4 trend-high"><input type="checkbox"> NY PM HIGH identifiziert</li>
+                </ul>
+            </section>
+        </div>
+            
+
+        <!-- Visualisierung -->
+        <div id="visualisierung" class="tab-content hidden">
+            <h2 class="font-semibold text-xl">🔹 1️⃣ Verluste mental visualisieren</h2>
+            <ul class="list-disc list-inside space-y-2">
+                <li><input type="checkbox"> Setze dich in eine ruhige Umgebung, schließe die Augen.</li>
+                <li><input type="checkbox"> Stelle dir vor, dass du eine beträchtliche Geldsumme verlierst.</li>
+                <li><input type="checkbox"> Visualisiere, was du nicht mehr kaufen kannst.</li>
+                <li><input type="checkbox"> Lass den emotionalen Schmerz bewusst wirken und akzeptiere ihn.</li>
+                <li><input type="checkbox"> Spüre körperliche Reaktionen (Nervosität, Herzklopfen).</li>
+            </ul>
+
+            <h2 class="font-semibold text-xl mt-6">🔹 2️⃣ Gewinne bewusst herunterspielen</h2>
+            <ul class="list-disc list-inside space-y-2">
+                <li><input type="checkbox"> Stelle dir vor, du gewinnst denselben Betrag.</li>
+                <li><input type="checkbox"> Vergleiche emotionale Intensität von Gewinn und Verlust.</li>
+                <li><input type="checkbox"> Spüre den Unterschied zwischen Gewinnfreude und Verlustschmerz.</li>
+            </ul>
+
+            <h2 class="font-semibold text-xl mt-6">🔹 3️⃣ Verlustgefühl wiederholen</h2>
+            <ul class="list-disc list-inside space-y-2">
+                <li><input type="checkbox"> Kehre bewusst zurück zum Verlustgefühl.</li>
+                <li><input type="checkbox"> Trainiere mentale Akzeptanz von Verlusten als normalen Teil des Tradings.</li>
+            </ul>
+        </div>
+
+        <!-- Journal -->
+        <div id="journal" class="tab-content hidden">
+            <h3 class="font-semibold text-xl">THEMA: LOKALISIERUNG</h3>
+            <textarea class="w-full h-32 p-2 bg-gray-200 dark:bg-gray-800 rounded-lg" data-question="Markt-Lokalisierung" placeholder="Wo befindet sich der Markt ? Oben oder Unten? Wie weit ist der PReis vom EMA entfernt?..."></textarea>
+
+            <h3 class="font-semibold text-xl mt-4">THEMA: BESTÄTIGUNGEN</h3>
+            <textarea class="w-full h-32 p-2 bg-gray-200 dark:bg-gray-800 rounded-lg" data-question="Bestätigungen abgewartet?" placeholder="Wurde auf eine Kerzenbestätigung gewartet?"></textarea>
+        </div>
+
+        <button onclick="exportToCSV()" class="mt-8 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">📥 CSV Exportieren</button>
+    </div>
+
 </body>
 </html>
