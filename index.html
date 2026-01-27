@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -182,9 +183,50 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="view-history" class="hidden"><div class="trade-list" id="trade-list"></div></div>
 </div>
 <script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwh3L61fi9qhVObG39jJ1WQIBZk3iY4eDMgn6mDpDmZa-dj5Ao2W6fOZzHfLr29j152XQ/exec'; // Google Apps Script Web-App URL
+
+// Trades vom Server laden
+async function loadTrades() {
+    try {
+        const res = await fetch(SCRIPT_URL + '?action=get');
+        const data = await res.json();
+        trades = data || [];
+        updateFocus();
+        renderView();
+        checkKillzoneToday();
+    } catch (err) {
+        console.error('Fehler beim Laden der Trades:', err);
+    }
+}
+
+// Trade speichern (POST)
+async function saveTrade() {
+    const trade = collectTradeFromForm(); // deine existierende Funktion
+    trades.push(trade);
+    try {
+        const res = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'save', trade })
+        });
+        const result = await res.json();
+        if (result.success) {
+            alert('Trade gespeichert!');
+            updateFocus();
+            renderView();
+            resetForm();
+        } else {
+            alert('Fehler beim Speichern auf Drive');
+        }
+    } catch (err) {
+        console.error('POST Fehler:', err);
+        alert('Fehler beim Speichern');
+    }
+}
+
+
+
 let trades=[];let currentView='entry';
-function loadTrades(){const s=localStorage.getItem('us100_v2');if(s)trades=JSON.parse(s);updateFocus();renderView();checkKillzoneToday();}
-function save(){localStorage.setItem('us100_v2',JSON.stringify(trades));updateFocus();}
 let currentCalendarDate=new Date();
 function changeView(v){currentView=v;document.querySelectorAll('.nav-tabs button').forEach(b=>b.classList.remove('active'));document.getElementById('btn-'+v).classList.add('active');document.getElementById('view-entry').classList.add('hidden');document.getElementById('view-calendar').classList.add('hidden');document.getElementById('view-stats').classList.add('hidden');document.getElementById('view-history').classList.add('hidden');document.getElementById('view-playbook').classList.add('hidden');document.getElementById('view-'+v).classList.remove('hidden');renderView();}
 function renderView(){if(currentView==='stats'){renderStats();renderPerformance();}if(currentView==='history')renderHistory();if(currentView==='calendar')renderCalendar();if(currentView==='entry')checkKillzoneToday();}
