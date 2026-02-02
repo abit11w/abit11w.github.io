@@ -1,0 +1,56 @@
+{
+  "trades": [
+    {
+      "date": "2026-02-02",
+      "weekday": "Montag",
+      "session": "ny",
+      "fiboLevel": "0.382",
+      "entry": 250,
+      "stopLoss": 200,
+      "takeProfit": 350,
+      "lotSize": 2,
+      "plannedRR": 2,
+      "liquiditySweep": [],
+      "entryType": "",
+      "errors": [],
+      "setupChecklist": {
+        "liquidityGrab": "waiting",
+        "killzoneSameDay": "waiting",
+        "strongMoveDown": "waiting",
+        "accumulation": "waiting",
+        "moveWithVolume": "waiting",
+        "fibDrawn": "waiting",
+        "goldenZone": "waiting"
+      },
+      "notes": "",
+      "trigger": "",
+      "mentalState": "",
+      "learnings": "",
+      "accountType": "demo",
+      "id": "07d67347-40a7-4b50-824a-b6a6e3b03fef",
+      "createdAt": "2026-02-02T14:22:22.429Z",
+      "updatedAt": "2026-02-02T14:22:22.429Z"
+    }
+  ],
+  "preMarketChecklists": [],
+  "postMarketChecklists": [],
+  "tradingRules": [
+    {
+      "id": "1",
+      "text": "Nur 2% Risiko pro Trade",
+      "active": true
+    },
+    {
+      "id": "2",
+      "text": "Setup muss 100% komplett sein",
+      "active": true
+    },
+    {
+      "id": "3",
+      "text": "Nur während Killzones traden",
+      "active": true
+    }
+  ],
+  "playbook": [],
+  "exportedAt": "2026-02-02T14:22:48.543Z"
+}
