@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Durak</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Georgia, serif;
+  background: #fff;
+  color: #000;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ---- SCREENS ---- */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ---- MENU ---- */
+#menu {
+  text-align: center;
+  padding: 40px 20px;
+}
+#menu h1 {
+  font-size: 48px;
+  letter-spacing: 4px;
+  border-bottom: 3px solid #000;
+  display: inline-block;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+#menu .subtitle {
+  font-size: 13px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  margin-bottom: 50px;
+  color: #555;
+}
+.menu-btn {
+  display: block;
+  width: 240px;
+  margin: 16px auto;
+  padding: 18px;
+  font-size: 18px;
+  font-family: Georgia, serif;
+  background: #fff;
+  border: 2px solid #000;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.menu-btn:active { background: #000; color: #fff; }
+.menu-sep {
+  margin: 30px auto;
+  width: 60px;
+  border-top: 1px solid #000;
+}
+
+/* ---- GAME ---- */
+#game {
+  padding: 0;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* Top info bar */
+#topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 2px solid #000;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+#topbar .trump-info {
+  font-size: 15px;
+  font-weight: bold;
+}
+#topbar .deck-info {
+  font-size: 12px;
+}
+#topbar button {
+  font-size: 11px;
+  padding: 4px 8px;
+  border: 1px solid #000;
+  background: #fff;
+  cursor: pointer;
+  font-family: Georgia, serif;
+}
+
+/* Opponent hand */
+#opp-area {
+  padding: 8px 12px;
+  border-bottom: 1px solid #ccc;
+  min-height: 60px;
+}
+#opp-area .area-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  color: #555;
+}
+.card-backs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.card-back {
+  width: 36px;
+  height: 52px;
+  border: 1px solid #000;
+  background: repeating-diagonal-stripe;
+  background: repeating-linear-gradient(45deg, #ddd, #ddd 2px, #fff 2px, #fff 6px);
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* Table area */
+#table-area {
+  padding: 10px 12px;
+  min-height: 150px;
+  border-bottom: 1px solid #ccc;
+  position: relative;
+}
+#table-area .area-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  color: #555;
+}
+#table-pairs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.table-pair {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.table-pair .defend-slot {
+  width: 52px;
+  height: 74px;
+  border: 1px dashed #aaa;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #aaa;
+}
+
+/* Status message */
+#status-msg {
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  min-height: 32px;
+  letter-spacing: 1px;
+}
+
+/* Action buttons */
+#action-btns {
+  display: flex;
+  gap: 8px;
+  padding: 6px 12px;
+  justify-content: center;
+}
+.action-btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-family: Georgia, serif;
+  border: 2px solid #000;
+  background: #fff;
+  cursor: pointer;
+  letter-spacing: 1px;
+  flex: 1;
+  max-width: 180px;
+}
+.action-btn:active { background: #000; color: #fff; }
+.action-btn.primary { background: #000; color: #fff; }
+.action-btn:disabled { border-color: #ccc; color: #ccc; cursor: default; background: #fff; }
+
+/* Player hand */
+#player-area {
+  padding: 8px 12px;
+  border-top: 1px solid #ccc;
+}
+#player-area .area-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  color: #555;
+}
+#player-hand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+/* CARD */
+.card {
+  width: 52px;
+  height: 74px;
+  border: 2px solid #000;
+  border-radius: 4px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  flex-shrink: 0;
+}
+.card:active { background: #eee; }
+.card.selected {
+  border-color: #000;
+  transform: translateY(-8px);
+  box-shadow: 0 4px 0 #000;
+}
+.card.disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.card .rank {
+  font-size: 15px;
+  font-weight: bold;
+  line-height: 1;
+  align-self: flex-start;
+}
+.card .suit-center {
+  font-size: 22px;
+  line-height: 1;
+}
+.card .rank-bot {
+  font-size: 15px;
+  font-weight: bold;
+  line-height: 1;
+  align-self: flex-end;
+  transform: rotate(180deg);
+}
+
+/* Suit patterns via class */
+.suit-kreuz  { color: #000; } /* ♣ clubs = cross pattern */
+.suit-pik    { color: #000; } /* ♠ spades */
+.suit-herz   { color: #000; } /* ♥ hearts - outlined */
+.suit-karo   { color: #000; } /* ♦ diamonds - outlined */
+
+/* Trump highlight */
+.card.trump {
+  border-style: solid;
+  border-width: 2px;
+}
+.trump-border { box-shadow: inset 0 0 0 2px #000; }
+
+/* Card outline for "red" suits on e-ink */
+.suit-herz .suit-center::after,
+.suit-karo .suit-center::after { content: ''; }
+
+/* ---- PASS & PLAY overlay ---- */
+#pp-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 100;
+  text-align: center;
+  padding: 60px 20px;
+}
+#pp-overlay h2 {
+  font-size: 28px;
+  letter-spacing: 3px;
+  margin-bottom: 16px;
+}
+#pp-overlay p {
+  font-size: 15px;
+  margin-bottom: 40px;
+  color: #555;
+}
+#pp-overlay button {
+  padding: 18px 40px;
+  font-size: 18px;
+  font-family: Georgia, serif;
+  border: 2px solid #000;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  letter-spacing: 2px;
+}
+
+/* ---- RESULT ---- */
+#result {
+  text-align: center;
+  padding: 60px 20px;
+}
+#result h2 {
+  font-size: 36px;
+  letter-spacing: 4px;
+  margin-bottom: 20px;
+}
+#result p {
+  font-size: 16px;
+  margin-bottom: 40px;
+  letter-spacing: 1px;
+}
+
+/* Scrollable hand if many cards */
+#player-hand, .card-backs { min-height: 80px; }
+
+#game-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+#player-area { margin-top: auto; }
+</style>
+</head>
+<body>
+
+<!-- MENU -->
+<div id="menu" class="screen active">
+  <h1>DURAK</h1>
+  <div class="subtitle">Подкидной · Карточная игра</div>
+  <button class="menu-btn" onclick="startGame('ki')">VS Computer</button>
+  <div class="menu-sep"></div>
+  <button class="menu-btn" onclick="startGame('pp')">2 Spieler</button>
+  <div style="margin-top:50px; font-size:12px; color:#aaa; letter-spacing:1px;">
+    36 Karten · Podkidnoy · E-Ink
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div id="game-wrap">
+    <div id="topbar">
+      <div class="trump-info" id="trump-display">Trumpf: —</div>
+      <div class="deck-info" id="deck-display">Deck: 36</div>
+      <button onclick="goMenu()">↩ Menü</button>
+    </div>
+
+    <div id="opp-area">
+      <div class="area-label" id="opp-label">Gegner</div>
+      <div class="card-backs" id="opp-hand"></div>
+    </div>
+
+    <div id="table-area">
+      <div class="area-label">Tisch</div>
+      <div id="table-pairs"></div>
+    </div>
+
+    <div id="status-msg">—</div>
+
+    <div id="action-btns">
+      <button class="action-btn" id="btn-take" onclick="playerTake()" style="display:none">Nehmen</button>
+      <button class="action-btn primary" id="btn-done" onclick="playerDone()" style="display:none">Fertig ✓</button>
+    </div>
+
+    <div id="player-area">
+      <div class="area-label" id="player-label">Deine Hand</div>
+      <div id="player-hand"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PASS & PLAY OVERLAY -->
+<div id="pp-overlay">
+  <h2 id="pp-title">SPIELER 1</h2>
+  <p id="pp-msg">Gib das Gerät weiter</p>
+  <button onclick="hidePPOverlay()">Bereit →</button>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="screen">
+  <h2 id="result-title">DURAK!</h2>
+  <p id="result-msg"></p>
+  <button class="menu-btn" onclick="goMenu()" style="margin:0 auto; display:block">Nochmal</button>
+</div>
+
+<script>
+// ===================== CONSTANTS =====================
+var SUITS = ['kreuz','pik','herz','karo'];
+var SUIT_SYMS = { kreuz:'♣', pik:'♠', herz:'♥', karo:'♦' };
+var RANKS = ['6','7','8','9','10','J','Q','K','A'];
+var RANK_VAL = {};
+for(var i=0;i<RANKS.length;i++) RANK_VAL[RANKS[i]] = i;
+
+// ===================== STATE =====================
+var G = {};
+
+function initDeck() {
+  var d = [];
+  for(var s=0;s<SUITS.length;s++)
+    for(var r=0;r<RANKS.length;r++)
+      d.push({suit:SUITS[s], rank:RANKS[r]});
+  // shuffle
+  for(var i=d.length-1;i>0;i--) {
+    var j = Math.floor(Math.random()*(i+1));
+    var tmp=d[i]; d[i]=d[j]; d[j]=tmp;
+  }
+  return d;
+}
+
+function startGame(mode) {
+  G.mode = mode; // 'ki' or 'pp'
+  G.deck = initDeck();
+  G.trumpCard = G.deck[G.deck.length-1];
+  G.trump = G.trumpCard.suit;
+
+  G.hands = [[],[]];
+  for(var i=0;i<6;i++) { G.hands[0].push(G.deck.shift()); G.hands[1].push(G.deck.shift()); }
+
+  // who attacks first: random
+  G.attacker = Math.floor(Math.random()*2);
+  G.defender = 1 - G.attacker;
+
+  G.table = []; // [{attack: card, defend: card|null}]
+  G.phase = 'attack'; // attack | defend | throw
+  G.selectedCard = null;
+  G.over = false;
+  G.passAndPlayPhase = null; // null | 'showAttacker' | 'showDefender'
+
+  showScreen('game');
+  updateTrumpDisplay();
+
+  if(mode === 'pp') {
+    showPPOverlay(G.attacker, 'Angriff', null);
+  } else {
+    if(G.attacker === 1) {
+      // KI attacks first
+      setStatus('Computer greift an...');
+      setTimeout(kiAttack, 700);
+    } else {
+      setStatus('Du greifst an. Wähle eine Karte.');
+      showButtons(false, false);
+    }
+    renderAll();
+  }
+}
+
+// ===================== RENDER =====================
+function renderAll() {
+  renderOppHand();
+  renderTable();
+  renderPlayerHand();
+  updateDeckDisplay();
+}
+
+function renderOppHand() {
+  var el = document.getElementById('opp-hand');
+  el.innerHTML = '';
+  var n = G.hands[1].length;
+  if(G.mode === 'pp') {
+    // show backs always
+    for(var i=0;i<n;i++) el.innerHTML += '<div class="card-back"></div>';
+  } else {
+    // KI: show backs
+    for(var i=0;i<n;i++) el.innerHTML += '<div class="card-back"></div>';
+  }
+  document.getElementById('opp-label').textContent = G.mode==='pp' ? 'Spieler '+(G.attacker===1?'1':'2') : 'Computer';
+  document.getElementById('player-label').textContent = G.mode==='pp' ? 'Spieler '+(G.defender===1?'1':'2') : 'Deine Hand';
+}
+
+function renderTable() {
+  var el = document.getElementById('table-pairs');
+  el.innerHTML = '';
+  for(var i=0;i<G.table.length;i++) {
+    var pair = G.table[i];
+    var div = document.createElement('div');
+    div.className = 'table-pair';
+    div.innerHTML = cardHTML(pair.attack, false, false);
+    if(pair.defend) {
+      div.innerHTML += cardHTML(pair.defend, false, false);
+    } else {
+      div.innerHTML += '<div class="defend-slot">?</div>';
+    }
+    el.appendChild(div);
+  }
+}
+
+function renderPlayerHand() {
+  var el = document.getElementById('player-hand');
+  el.innerHTML = '';
+  var hand = G.hands[G.defender];
+  // if pp, show attacker hand when attacker's turn
+  if(G.mode === 'pp' && G.phase === 'attack') {
+    hand = G.hands[G.attacker];
+  }
+  for(var i=0;i<hand.length;i++) {
+    var c = hand[i];
+    var sel = (G.selectedCard === i);
+    var disabled = !isPlayable(c, i);
+    var html = cardHTML(c, sel, disabled);
+    var wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    var cardEl = wrapper.firstChild;
+    (function(idx){ cardEl.onclick = function(){ onCardClick(idx); }; })(i);
+    el.appendChild(cardEl);
+  }
+}
+
+function cardHTML(c, selected, disabled) {
+  var cls = 'card suit-'+c.suit;
+  if(c.suit === G.trump) cls += ' trump';
+  if(selected) cls += ' selected';
+  if(disabled) cls += ' disabled';
+  var sym = SUIT_SYMS[c.suit];
+  // For e-ink: hearts and diamonds get outline style via unicode
+  var display = sym;
+  if(c.suit==='herz') display = '♡';
+  if(c.suit==='karo') display = '◇';
+  return '<div class="'+cls+'">'
+    + '<div class="rank">'+c.rank+'</div>'
+    + '<div class="suit-center">'+display+'</div>'
+    + '<div class="rank-bot">'+c.rank+'</div>'
+    + '</div>';
+}
+
+function isPlayable(c, idx) {
+  if(G.mode==='pp' && G.phase==='attack') {
+    // attacker's turn - all cards valid to attack
+    return true;
+  }
+  if(G.phase === 'attack' || G.phase === 'throw') {
+    if(G.table.length === 0) return true;
+    // can only play rank that's already on table
+    var tableRanks = {};
+    for(var i=0;i<G.table.length;i++) {
+      tableRanks[G.table[i].attack.rank] = true;
+      if(G.table[i].defend) tableRanks[G.table[i].defend.rank] = true;
+    }
+    return tableRanks[c.rank] !== undefined;
+  }
+  if(G.phase === 'defend') {
+    // must cover selected attack card
+    var atk = getOpenAttack();
+    if(!atk) return false;
+    return canDefend(c, atk);
+  }
+  return false;
+}
+
+function canDefend(defender, attacker) {
+  if(defender.suit === attacker.suit) return RANK_VAL[defender.rank] > RANK_VAL[attacker.rank];
+  if(defender.suit === G.trump && attacker.suit !== G.trump) return true;
+  return false;
+}
+
+function getOpenAttack() {
+  for(var i=0;i<G.table.length;i++) {
+    if(!G.table[i].defend) return G.table[i].attack;
+  }
+  return null;
+}
+
+function countOpenAttacks() {
+  var n=0;
+  for(var i=0;i<G.table.length;i++) if(!G.table[i].defend) n++;
+  return n;
+}
+
+// ===================== PLAYER ACTIONS =====================
+function onCardClick(idx) {
+  if(G.over) return;
+  var hand;
+  var isAttackerTurn = (G.phase==='attack') || (G.phase==='throw');
+  if(G.mode==='pp') {
+    hand = isAttackerTurn ? G.hands[G.attacker] : G.hands[G.defender];
+  } else {
+    hand = G.hands[0];
+  }
+  var c = hand[idx];
+  if(!isPlayable(c, idx)) return;
+
+  if(G.phase === 'attack') {
+    // Play attack card
+    G.table.push({attack: c, defend: null});
+    hand.splice(idx, 1);
+    G.selectedCard = null;
+    G.phase = 'defend';
+
+    if(G.mode === 'pp') {
+      renderAll();
+      showPPOverlay(G.defender, 'Verteidigung', null);
+    } else {
+      setStatus('Computer verteidigt...');
+      showButtons(false, false);
+      renderAll();
+      setTimeout(kiDefend, 700);
+    }
+
+  } else if(G.phase === 'defend') {
+    // defend
+    var atk = getOpenAttack();
+    if(!atk) return;
+    if(!canDefend(c, atk)) return;
+    // find and fill the open slot
+    for(var i=0;i<G.table.length;i++) {
+      if(!G.table[i].defend && G.table[i].attack.rank===atk.rank && G.table[i].attack.suit===atk.suit) {
+        G.table[i].defend = c;
+        hand.splice(idx, 1);
+        break;
+      }
+    }
+    G.selectedCard = null;
+    renderAll();
+    // check if all defended
+    if(countOpenAttacks()===0) {
+      // attacker can throw more or finish
+      G.phase = 'throw';
+      if(G.mode === 'pp') {
+        showPPOverlay(G.attacker, 'Nachwerfen?', 'Karten nachwerfen oder "Fertig" drücken');
+        renderAll();
+        showButtons(false, true);
+      } else {
+        if(G.attacker === 0) {
+          setStatus('Alle abgewehrt. Nachwerfen oder Fertig.');
+          showButtons(false, true);
+        } else {
+          setStatus('KI wirft nach...');
+          showButtons(false, false);
+          setTimeout(kiThrow, 700);
+        }
+      }
+    } else {
+      if(G.mode !== 'pp') setStatus('Noch '+countOpenAttacks()+' abzuwehren.');
+    }
+
+  } else if(G.phase === 'throw') {
+    // throw more cards
+    G.table.push({attack: c, defend: null});
+    hand.splice(idx, 1);
+    G.selectedCard = null;
+    renderAll();
+    G.phase = 'defend';
+    if(G.mode === 'pp') {
+      showPPOverlay(G.defender, 'Verteidigung', 'Karte nachgeworfen!');
+    } else {
+      setStatus('Computer verteidigt...');
+      showButtons(false, false);
+      setTimeout(kiDefend, 700);
+    }
+  }
+  checkWin();
+}
+
+function playerTake() {
+  // Defender takes all table cards
+  var hand = G.hands[G.defender];
+  for(var i=0;i<G.table.length;i++) {
+    hand.push(G.table[i].attack);
+    if(G.table[i].defend) hand.push(G.table[i].defend);
+  }
+  G.table = [];
+  showButtons(false, false);
+  dealCards();
+  // attacker stays attacker (defender took)
+  endRound(false);
+}
+
+function playerDone() {
+  // Attacker finishes throwing
+  clearTable();
+  showButtons(false, false);
+  dealCards();
+  endRound(true);
+}
+
+// ===================== ROUND END =====================
+function endRound(defenderSucceeded) {
+  if(defenderSucceeded) {
+    // rotate: defender becomes attacker
+    G.attacker = G.defender;
+    G.defender = 1 - G.attacker;
+  } else {
+    // attacker stays (defender took)
+    // attacker stays same
+  }
+  G.phase = 'attack';
+  G.table = [];
+  checkWin();
+  if(G.over) return;
+
+  if(G.mode === 'pp') {
+    showPPOverlay(G.attacker, 'Angriff', null);
+  } else {
+    if(G.attacker === 1) {
+      setStatus('Computer greift an...');
+      showButtons(false, false);
+      renderAll();
+      setTimeout(kiAttack, 900);
+    } else {
+      setStatus('Du greifst an.');
+      showButtons(false, false);
+      renderAll();
+    }
+  }
+}
+
+function clearTable() {
+  G.table = [];
+}
+
+// ===================== DEAL =====================
+function dealCards() {
+  // attacker draws first, then defender
+  drawUpTo(G.attacker);
+  drawUpTo(G.defender);
+}
+
+function drawUpTo(player) {
+  while(G.hands[player].length < 6 && G.deck.length > 0) {
+    G.hands[player].push(G.deck.shift());
+  }
+}
+
+// ===================== WIN CHECK =====================
+function checkWin() {
+  if(G.deck.length > 0) return;
+  var p0empty = G.hands[0].length === 0;
+  var p1empty = G.hands[1].length === 0;
+  if(!p0empty && !p1empty) return;
+
+  G.over = true;
+  var title, msg;
+  if(p0empty && p1empty) {
+    title = 'UNENTSCHIEDEN';
+    msg = 'Beide haben gleichzeitig gewonnen!';
+  } else if(G.mode === 'ki') {
+    if(p0empty) { title = 'GEWONNEN!'; msg = 'Du bist nicht der Durak 🎉'; }
+    else { title = 'DURAK!'; msg = 'Der Computer hat gewonnen.'; }
+  } else {
+    var durak = p0empty ? 'Spieler 2' : 'Spieler 1';
+    var winner = p0empty ? 'Spieler 1' : 'Spieler 2';
+    title = durak.toUpperCase() + ' IST DURAK!';
+    msg = winner + ' hat gewonnen!';
+  }
+  setTimeout(function() {
+    document.getElementById('result-title').textContent = title;
+    document.getElementById('result-msg').textContent = msg;
+    showScreen('result');
+  }, 500);
+}
+
+// ===================== KI LOGIC =====================
+function kiAttack() {
+  var hand = G.hands[1];
+  if(hand.length === 0) { endRound(true); return; }
+  // Play lowest non-trump if possible
+  var card = null, idx = -1;
+  // prefer non-trump
+  var best = null, bestIdx = -1;
+  for(var i=0;i<hand.length;i++) {
+    if(hand[i].suit !== G.trump) {
+      if(!best || RANK_VAL[hand[i].rank] < RANK_VAL[best.rank]) { best=hand[i]; bestIdx=i; }
+    }
+  }
+  if(!best) { // only trumps
+    for(var i=0;i<hand.length;i++) {
+      if(!best || RANK_VAL[hand[i].rank] < RANK_VAL[best.rank]) { best=hand[i]; bestIdx=i; }
+    }
+  }
+  card=best; idx=bestIdx;
+  G.table.push({attack: card, defend: null});
+  hand.splice(idx,1);
+  G.phase = 'defend';
+  setStatus('Computer greift an mit ' + card.rank + SUIT_SYMS[card.suit]);
+  showButtons(true, false);
+  renderAll();
+}
+
+function kiDefend() {
+  var hand = G.hands[1];
+  var atk = getOpenAttack();
+  if(!atk) { kiThrow(); return; }
+  // find best defending card (lowest sufficient)
+  var best = null, bestIdx = -1;
+  for(var i=0;i<hand.length;i++) {
+    if(canDefend(hand[i], atk)) {
+      if(!best || RANK_VAL[hand[i].rank] < RANK_VAL[best.rank]) { best=hand[i]; bestIdx=i; }
+    }
+  }
+  if(!best) {
+    // KI can't defend, takes
+    var allCards = [];
+    for(var i=0;i<G.table.length;i++) {
+      allCards.push(G.table[i].attack);
+      if(G.table[i].defend) allCards.push(G.table[i].defend);
+    }
+    for(var i=0;i<allCards.length;i++) hand.push(allCards[i]);
+    G.table = [];
+    setStatus('Computer kann nicht abwehren und nimmt!');
+    showButtons(false, false);
+    dealCards();
+    // attacker stays
+    G.phase = 'attack';
+    checkWin();
+    if(!G.over) {
+      renderAll();
+      if(G.attacker === 0) {
+        setStatus('Du greifst an.');
+      } else {
+        setTimeout(kiAttack, 900);
+      }
+    }
+    return;
+  }
+  G.table[G.table.length-1].defend = best; // defend last open
+  // actually find open slot
+  for(var i=0;i<G.table.length;i++) {
+    if(!G.table[i].defend) { G.table[i].defend=best; break; }
+  }
+  hand.splice(bestIdx,1);
+  setStatus('Computer wehrt ab.');
+  renderAll();
+
+  if(countOpenAttacks()===0) {
+    G.phase = 'throw';
+    if(G.attacker === 0) {
+      setStatus('Nachwerfen? Oder Fertig drücken.');
+      showButtons(false, true);
+    } else {
+      setTimeout(kiThrow, 600);
+    }
+  } else {
+    setTimeout(kiDefend, 500);
+  }
+}
+
+function kiThrow() {
+  // KI throws matching rank if it can (podkidnoy)
+  var hand = G.hands[1];
+  var tableRanks = {};
+  for(var i=0;i<G.table.length;i++) {
+    tableRanks[G.table[i].attack.rank]=true;
+    if(G.table[i].defend) tableRanks[G.table[i].defend.rank]=true;
+  }
+  // max throws: defender hand size
+  if(G.table.length >= G.hands[G.defender].length) {
+    // can't throw more
+    kiFinishRound();
+    return;
+  }
+  var throwCard = null, throwIdx = -1;
+  for(var i=0;i<hand.length;i++) {
+    if(tableRanks[hand[i].rank]) { throwCard=hand[i]; throwIdx=i; break; }
+  }
+  if(!throwCard) { kiFinishRound(); return; }
+  G.table.push({attack:throwCard, defend:null});
+  hand.splice(throwIdx,1);
+  G.phase = 'defend';
+  setStatus('Computer wirft nach: ' + throwCard.rank + SUIT_SYMS[throwCard.suit]);
+  showButtons(true, false);
+  renderAll();
+  if(G.attacker === 1) {
+    setTimeout(function(){ G.phase='defend'; kiDefend(); }, 600);
+  }
+}
+
+function kiFinishRound() {
+  clearTable();
+  dealCards();
+  endRound(true);
+}
+
+// ===================== PASS & PLAY =====================
+function showPPOverlay(forPlayer, action, extraMsg) {
+  var overlay = document.getElementById('pp-overlay');
+  overlay.style.display = 'block';
+  var pName = 'Spieler ' + (forPlayer+1);
+  document.getElementById('pp-title').textContent = pName;
+  document.getElementById('pp-msg').textContent = extraMsg || ('Gib das Gerät weiter · ' + action);
+  // update labels for who's showing
+  document.getElementById('player-label').textContent = pName + ' – Deine Hand';
+  document.getElementById('opp-label').textContent = 'Spieler ' + (2-forPlayer);
+  renderAll();
+}
+
+function hidePPOverlay() {
+  document.getElementById('pp-overlay').style.display = 'none';
+  // set buttons
+  if(G.phase === 'attack' || G.phase === 'throw') {
+    showButtons(false, G.phase==='throw');
+    setStatus(G.phase==='attack' ? 'Wähle eine Angriffskarte.' : 'Nachwerfen oder Fertig.');
+  } else {
+    showButtons(true, false);
+    setStatus('Wähle eine Abwehrkarte oder nimm die Karten.');
+  }
+  renderAll();
+}
+
+// ===================== UI HELPERS =====================
+function showScreen(id) {
+  var screens = document.querySelectorAll('.screen');
+  for(var i=0;i<screens.length;i++) screens[i].classList.remove('active');
+  document.getElementById(id).classList.add('active');
+}
+
+function goMenu() {
+  G.over = true;
+  document.getElementById('pp-overlay').style.display = 'none';
+  showScreen('menu');
+}
+
+function setStatus(msg) {
+  document.getElementById('status-msg').textContent = msg;
+}
+
+function showButtons(takeable, donable) {
+  document.getElementById('btn-take').style.display = takeable ? 'block' : 'none';
+  document.getElementById('btn-done').style.display = donable ? 'block' : 'none';
+}
+
+function updateTrumpDisplay() {
+  var c = G.trumpCard;
+  var sym = SUIT_SYMS[c.suit];
+  if(c.suit==='herz') sym='♡';
+  if(c.suit==='karo') sym='◇';
+  document.getElementById('trump-display').textContent = 'Trumpf: ' + c.rank + sym + ' (' + c.suit + ')';
+}
+
+function updateDeckDisplay() {
+  document.getElementById('deck-display').textContent = 'Deck: ' + G.deck.length;
+}
+</script>
+</body>
+</html>

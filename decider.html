@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Decider</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  background: #fff;
+  color: #000;
+  min-height: 100vh;
+}
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ---- MENU ---- */
+#menu {
+  padding: 30px 20px 20px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+#menu h1 {
+  font-size: 42px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  border-bottom: 3px double #000;
+  padding-bottom: 10px;
+  margin-bottom: 6px;
+}
+
+#menu .tagline {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #666;
+  margin-bottom: 36px;
+  font-style: italic;
+}
+
+.menu-section {
+  margin-bottom: 28px;
+}
+
+.menu-section-title {
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #eee;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.menu-grid.single { grid-template-columns: 1fr; }
+
+.mitem {
+  border: 2px solid #000;
+  padding: 16px 12px;
+  text-align: center;
+  cursor: pointer;
+  background: #fff;
+  font-family: Georgia, serif;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+.mitem:active { background: #000; color: #fff; }
+
+.mitem .mitem-icon {
+  font-size: 26px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.mitem .mitem-label {
+  font-size: 13px;
+  display: block;
+}
+
+/* ---- RESULT SCREEN ---- */
+#result-screen {
+  padding: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: none;
+  flex-direction: column;
+}
+#result-screen.active {
+  display: flex;
+}
+
+#result-header {
+  padding: 12px 16px;
+  border-bottom: 2px solid #000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#result-header .mode-name {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #666;
+}
+
+#result-header button {
+  font-size: 12px;
+  padding: 6px 12px;
+  border: 1px solid #000;
+  background: #fff;
+  font-family: Georgia, serif;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+#result-header button:active { background: #000; color: #fff; }
+
+#result-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  text-align: center;
+}
+
+#result-symbol {
+  font-size: 80px;
+  line-height: 1;
+  margin-bottom: 20px;
+  display: block;
+}
+
+#result-main {
+  font-size: 38px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  font-weight: bold;
+}
+
+#result-sub {
+  font-size: 14px;
+  color: #555;
+  letter-spacing: 1px;
+  font-style: italic;
+  max-width: 300px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+#result-again {
+  padding: 16px 40px;
+  font-size: 16px;
+  font-family: Georgia, serif;
+  border: 2px solid #000;
+  background: #fff;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+#result-again:active { background: #000; color: #fff; }
+
+/* ---- STOIC RESULT ---- */
+#stoic-screen {
+  padding: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: none;
+  flex-direction: column;
+}
+#stoic-screen.active { display: flex; }
+
+#stoic-header {
+  padding: 12px 16px;
+  border-bottom: 2px solid #000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#stoic-header .mode-name {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #666;
+}
+#stoic-header button {
+  font-size: 12px;
+  padding: 6px 12px;
+  border: 1px solid #000;
+  background: #fff;
+  font-family: Georgia, serif;
+  cursor: pointer;
+}
+#stoic-header button:active { background: #000; color: #fff; }
+
+#stoic-body {
+  flex: 1;
+  padding: 30px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+#stoic-question-text {
+  font-size: 18px;
+  line-height: 1.7;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+#stoic-result-display {
+  font-size: 52px;
+  margin: 20px 0;
+  display: none;
+}
+
+#stoic-result-text {
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+  display: none;
+}
+
+#stoic-insight {
+  font-size: 13px;
+  color: #555;
+  font-style: italic;
+  line-height: 1.7;
+  max-width: 300px;
+  margin-bottom: 28px;
+  display: none;
+}
+
+.stoic-btn {
+  width: 100%;
+  max-width: 300px;
+  padding: 18px;
+  font-size: 16px;
+  font-family: Georgia, serif;
+  border: 2px solid #000;
+  background: #fff;
+  cursor: pointer;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+.stoic-btn:active { background: #000; color: #fff; }
+.stoic-btn.flip-btn { background: #000; color: #fff; font-size: 18px; }
+.stoic-btn.flip-btn:active { background: #fff; color: #000; }
+
+#stoic-reaction-area { display: none; width: 100%; max-width: 300px; }
+
+/* ---- PICKER SCREEN ---- */
+#picker-screen {
+  padding: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: none;
+  flex-direction: column;
+}
+#picker-screen.active { display: flex; }
+
+#picker-header {
+  padding: 12px 16px;
+  border-bottom: 2px solid #000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#picker-header .mode-name {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #666;
+}
+#picker-header button {
+  font-size: 12px;
+  padding: 6px 12px;
+  border: 1px solid #000;
+  background: #fff;
+  font-family: Georgia, serif;
+  cursor: pointer;
+}
+#picker-header button:active { background: #000; color: #fff; }
+
+#picker-body {
+  flex: 1;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+#picker-items {
+  flex: 1;
+  margin-bottom: 12px;
+}
+
+#picker-items-list {
+  list-style: none;
+  margin-bottom: 12px;
+}
+
+#picker-items-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 16px;
+}
+
+#picker-items-list li button {
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 4px;
+  color: #999;
+}
+
+#picker-add-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+#picker-input {
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+  font-family: Georgia, serif;
+  border: 2px solid #000;
+  background: #fff;
+}
+
+#picker-add-btn {
+  padding: 12px 16px;
+  font-size: 16px;
+  font-family: Georgia, serif;
+  border: 2px solid #000;
+  background: #fff;
+  cursor: pointer;
+}
+#picker-add-btn:active { background: #000; color: #fff; }
+
+#picker-go {
+  padding: 18px;
+  font-size: 18px;
+  font-family: Georgia, serif;
+  border: 2px solid #000;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  width: 100%;
+}
+#picker-go:active { background: #fff; color: #000; }
+#picker-go:disabled { background: #ccc; border-color: #ccc; cursor: default; }
+
+#picker-result-banner {
+  display: none;
+  text-align: center;
+  padding: 24px;
+  border: 3px solid #000;
+  margin-bottom: 16px;
+}
+#picker-result-banner .winner {
+  font-size: 26px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+#picker-result-banner .winner-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+/* ---- RANGE SCREEN ---- */
+#range-screen {
+  padding: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: none;
+  flex-direction: column;
+}
+#range-screen.active { display: flex; }
+
+#range-header {
+  padding: 12px 16px;
+  border-bottom: 2px solid #000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#range-header .mode-name {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #666;
+}
+#range-header button {
+  font-size: 12px;
+  padding: 6px 12px;
+  border: 1px solid #000;
+  background: #fff;
+  font-family: Georgia, serif;
+  cursor: pointer;
+}
+
+#range-body {
+  flex: 1;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.range-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.range-label {
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  width: 50px;
+  text-align: right;
+  color: #666;
+}
+
+.range-input {
+  width: 100px;
+  padding: 12px;
+  font-size: 20px;
+  font-family: Georgia, serif;
+  border: 2px solid #000;
+  text-align: center;
+  background: #fff;
+}
+
+#range-result-num {
+  font-size: 80px;
+  font-weight: bold;
+  letter-spacing: -2px;
+  margin: 20px 0;
+  display: none;
+}
+
+#range-go {
+  padding: 16px 40px;
+  font-size: 16px;
+  font-family: Georgia, serif;
+  border: 2px solid #000;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+#range-go:active { background: #fff; color: #000; }
+
+/* REGRET SCREEN */
+#regret-screen {
+  padding: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: none;
+  flex-direction: column;
+}
+#regret-screen.active { display: flex; }
+#regret-header {
+  padding: 12px 16px;
+  border-bottom: 2px solid #000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#regret-header .mode-name {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #666;
+}
+#regret-header button {
+  font-size: 12px;
+  padding: 6px 12px;
+  border: 1px solid #000;
+  background: #fff;
+  font-family: Georgia, serif;
+  cursor: pointer;
+}
+#regret-body {
+  flex: 1;
+  padding: 30px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+#regret-step1, #regret-step2 { width: 100%; max-width: 340px; }
+#regret-question-input {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-family: Georgia, serif;
+  border: 2px solid #000;
+  margin-bottom: 16px;
+  background: #fff;
+}
+#regret-prompt {
+  font-size: 16px;
+  line-height: 1.7;
+  margin-bottom: 28px;
+  font-style: italic;
+}
+.regret-choice {
+  width: 100%;
+  padding: 20px;
+  font-size: 16px;
+  font-family: Georgia, serif;
+  border: 2px solid #000;
+  background: #fff;
+  cursor: pointer;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+.regret-choice:active { background: #000; color: #fff; }
+#regret-answer {
+  display: none;
+  text-align: center;
+}
+#regret-answer .answer-text {
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+}
+#regret-answer .answer-insight {
+  font-size: 13px;
+  color: #555;
+  font-style: italic;
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+/* ---- COIN SCREEN ---- */
+#coin-screen {
+  padding: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: none;
+  flex-direction: column;
+}
+#coin-screen.active { display: flex; }
+#coin-header {
+  padding: 12px 16px;
+  border-bottom: 2px solid #000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#coin-header .mode-name {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #666;
+}
+#coin-header button {
+  font-size: 12px;
+  padding: 6px 12px;
+  border: 1px solid #000;
+  background: #fff;
+  font-family: Georgia, serif;
+  cursor: pointer;
+}
+#coin-header button:active { background: #000; color: #fff; }
+#coin-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+}
+#coin-svg-wrap {
+  margin-bottom: 24px;
+}
+#coin-label {
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+#coin-sub {
+  font-size: 13px;
+  color: #666;
+  font-style: italic;
+  margin-bottom: 32px;
+  letter-spacing: 1px;
+}
+#coin-again {
+  padding: 16px 40px;
+  font-size: 16px;
+  font-family: Georgia, serif;
+  border: 2px solid #000;
+  background: #fff;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+#coin-again:active { background: #000; color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- ===== MENU ===== -->
+<div id="menu" class="screen active">
+  <h1>Decider</h1>
+  <div class="tagline">Weniger grübeln. Mehr leben.</div>
+
+  <div class="menu-section">
+    <div class="menu-section-title">Zufall</div>
+    <div class="menu-grid">
+      <div class="mitem" onclick="showCoin()">
+        <span class="mitem-icon">◯</span>
+        <span class="mitem-label">Münzwurf</span>
+      </div>
+      <div class="mitem" onclick="showDice()">
+        <span class="mitem-icon">⬡</span>
+        <span class="mitem-label">Würfel</span>
+      </div>
+      <div class="mitem" onclick="showYesNo()">
+        <span class="mitem-icon">?</span>
+        <span class="mitem-label">Ja / Nein</span>
+      </div>
+      <div class="mitem" onclick="showRange()">
+        <span class="mitem-icon">#</span>
+        <span class="mitem-label">Zufallszahl</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-section">
+    <div class="menu-section-title">Auswahl</div>
+    <div class="menu-grid single">
+      <div class="mitem" onclick="showPicker()">
+        <span class="mitem-icon">↓</span>
+        <span class="mitem-label">Zufalls-Picker</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-section">
+    <div class="menu-section-title">Nachdenken</div>
+    <div class="menu-grid">
+      <div class="mitem" onclick="showStoic()">
+        <span class="mitem-icon">⊙</span>
+        <span class="mitem-label">Stoischer Münzwurf</span>
+      </div>
+      <div class="mitem" onclick="showRegret()">
+        <span class="mitem-icon">↺</span>
+        <span class="mitem-label">Reue-Test</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SIMPLE RESULT ===== -->
+<div id="result-screen" class="screen">
+  <div id="result-header">
+    <span class="mode-name" id="result-mode-name">—</span>
+    <button onclick="goMenu()">↩ Zurück</button>
+  </div>
+  <div id="result-body">
+    <span id="result-symbol">—</span>
+    <div id="result-main">—</div>
+    <div id="result-sub"></div>
+    <button id="result-again" onclick="resultAgain()">Nochmal</button>
+  </div>
+</div>
+
+<!-- ===== COIN ===== -->
+<div id="coin-screen" class="screen">
+  <div id="coin-header">
+    <span class="mode-name">Münzwurf</span>
+    <button onclick="goMenu()">&#x21A9; Zurück</button>
+  </div>
+  <div id="coin-body" style="max-width:480px;margin:0 auto;padding:20px;text-align:center;">
+    <pre id="coin-ascii" style="font-family:monospace;font-size:20px;line-height:1.45;display:inline-block;text-align:left;margin:20px 0;"></pre>
+    <div id="coin-label" style="font-size:36px;font-weight:bold;letter-spacing:6px;margin-bottom:16px;">---</div>
+    <div id="coin-stats" style="font-size:13px;letter-spacing:1px;margin-bottom:8px;color:#555;"></div>
+    <div style="display:flex;align-items:center;max-width:280px;margin:0 auto 6px;gap:8px;font-size:11px;letter-spacing:2px;">
+      <span>K</span>
+      <div style="flex:1;height:10px;border:1px solid #000;display:flex;overflow:hidden;">
+        <div id="coin-bar-kopf" style="background:#000;height:100%;width:50%;"></div>
+      </div>
+      <span>Z</span>
+    </div>
+    <div id="coin-bar-pct" style="font-size:11px;color:#999;letter-spacing:1px;margin-bottom:24px;"></div>
+    <button onclick="flipCoin()" style="display:inline-block;padding:16px 40px;font-size:16px;font-family:Georgia,serif;border:2px solid #000;background:#000;color:#fff;cursor:pointer;letter-spacing:2px;">Nochmal</button>
+  </div>
+</div>
+
+<!-- ===== STOIC ===== -->
+<div id="stoic-screen" class="screen">
+  <div id="stoic-header">
+    <span class="mode-name">Stoischer Münzwurf</span>
+    <button onclick="goMenu()">↩ Zurück</button>
+  </div>
+  <div id="stoic-body">
+    <div id="stoic-question-text">
+      Denke an deine Entscheidung.<br>
+      <strong>Kopf = Option A &nbsp;·&nbsp; Zahl = Option B</strong>
+    </div>
+
+    <div id="stoic-flip-area">
+      <button class="stoic-btn flip-btn" onclick="flipStoic()">Werfen ◯</button>
+    </div>
+
+    <div id="stoic-result-display"></div>
+    <div id="stoic-result-text"></div>
+    <div id="stoic-insight"></div>
+
+    <div id="stoic-reaction-area">
+      <div style="font-size:13px; letter-spacing:2px; text-transform:uppercase; color:#666; margin-bottom:12px;">Wie fühlst du dich dabei?</div>
+      <button class="stoic-btn" onclick="stoicReaction('gut')">Erleichtert ✓</button>
+      <button class="stoic-btn" onclick="stoicReaction('schlecht')">Enttäuscht ✗</button>
+      <button class="stoic-btn" onclick="stoicReaction('egal')">Gleichgültig —</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PICKER ===== -->
+<div id="picker-screen" class="screen">
+  <div id="picker-header">
+    <span class="mode-name">Zufalls-Picker</span>
+    <button onclick="goMenu()">↩ Zurück</button>
+  </div>
+  <div id="picker-body">
+    <div id="picker-result-banner">
+      <div class="winner-label">Ausgewählt</div>
+      <div class="winner" id="picker-winner-text">—</div>
+    </div>
+    <div id="picker-items">
+      <ul id="picker-items-list"></ul>
+      <div id="picker-add-row">
+        <input type="text" id="picker-input" placeholder="Option eingeben..." maxlength="40">
+        <button id="picker-add-btn" onclick="pickerAdd()">+</button>
+      </div>
+    </div>
+    <button id="picker-go" onclick="pickerGo()" disabled>Auswählen →</button>
+  </div>
+</div>
+
+<!-- ===== RANGE ===== -->
+<div id="range-screen" class="screen">
+  <div id="range-header">
+    <span class="mode-name">Zufallszahl</span>
+    <button onclick="goMenu()">↩ Zurück</button>
+  </div>
+  <div id="range-body">
+    <div class="range-row">
+      <span class="range-label">Von</span>
+      <input type="number" class="range-input" id="range-min" value="1">
+    </div>
+    <div class="range-row">
+      <span class="range-label">Bis</span>
+      <input type="number" class="range-input" id="range-max" value="100">
+    </div>
+    <div id="range-result-num"></div>
+    <button id="range-go" onclick="rangeGo()">Würfeln →</button>
+  </div>
+</div>
+
+<!-- ===== REGRET TEST ===== -->
+<div id="regret-screen" class="screen">
+  <div id="regret-header">
+    <span class="mode-name">Reue-Test</span>
+    <button onclick="goMenu()">↩ Zurück</button>
+  </div>
+  <div id="regret-body">
+    <div id="regret-step1">
+      <div style="font-size:14px; color:#666; font-style:italic; margin-bottom:20px; line-height:1.7;">
+        Beschreibe kurz was du tun oder lassen möchtest.
+      </div>
+      <input type="text" id="regret-question-input" placeholder="z.B. Das Angebot annehmen..." maxlength="80">
+      <button class="regret-choice" onclick="regretNext()">Weiter →</button>
+    </div>
+    <div id="regret-step2" style="display:none;">
+      <div id="regret-prompt"></div>
+      <button class="regret-choice" onclick="regretAnswer('ja')">Ja, ich werde es bereuen</button>
+      <button class="regret-choice" onclick="regretAnswer('nein')">Nein, kein Grund zur Reue</button>
+      <button class="regret-choice" onclick="regretAnswer('weiss')">Ich weiß es nicht</button>
+    </div>
+    <div id="regret-answer">
+      <div class="answer-text" id="regret-answer-text"></div>
+      <div class="answer-insight" id="regret-answer-insight"></div>
+      <button class="regret-choice" onclick="regretReset()">Nochmal</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== NAVIGATION =====================
+function showScreen(id) {
+  var all = document.querySelectorAll('.screen');
+  for(var i=0;i<all.length;i++) all[i].classList.remove('active');
+  document.getElementById(id).classList.add('active');
+}
+
+function goMenu() { showScreen('menu'); }
+
+// ===================== COIN =====================
+var currentMode = '';
+var coinStats = {kopf:0, zahl:0};
+
+function showCoin() {
+  currentMode = 'coin';
+  flipCoin();
+}
+
+function flipCoin() {
+  var isKopf = Math.random() < 0.5;
+  if(isKopf) coinStats.kopf++; else coinStats.zahl++;
+  var total = coinStats.kopf + coinStats.zahl;
+  var pK = Math.round(coinStats.kopf / total * 100);
+  var pZ = 100 - pK;
+
+  var kopfArt = "   .------.\n  ( o    o )\n  |  ----  |\n  |  KOPF  |\n  (        )\n   '------'";
+  var zahlArt = "   .------.\n  | |||||| |\n  | | 1  | |\n  | |  1 | |\n  | |||||| |\n   '------'";
+
+  document.getElementById('coin-ascii').textContent = isKopf ? kopfArt : zahlArt;
+  document.getElementById('coin-label').textContent = isKopf ? 'KOPF' : 'ZAHL';
+  document.getElementById('coin-stats').textContent =
+    'Kopf: ' + coinStats.kopf + 'x (' + pK + '%)   Zahl: ' + coinStats.zahl + 'x (' + pZ + '%)   Gesamt: ' + total;
+  document.getElementById('coin-bar-kopf').style.width = pK + '%';
+  document.getElementById('coin-bar-pct').textContent = pK + '% : ' + pZ + '%';
+  showScreen('coin-screen');
+}
+
+// ===================== DICE =====================
+var diceType = 6;
+
+function showDice() {
+  currentMode = 'dice';
+  // ask which die
+  var types = [4,6,8,10,12,20];
+  var html = '<div style="padding:30px 20px; max-width:480px; margin:0 auto;">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:24px;">';
+  html += '<span style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#666;">Würfel wählen</span>';
+  html += '<button onclick="goMenu()" style="font-size:12px;padding:6px 12px;border:1px solid #000;background:#fff;font-family:Georgia,serif;cursor:pointer;">↩ Zurück</button>';
+  html += '</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">';
+  for(var i=0;i<types.length;i++) {
+    html += '<button onclick="rollDice('+types[i]+')" style="padding:24px 10px;font-size:22px;font-family:Georgia,serif;border:2px solid #000;background:#fff;cursor:pointer;letter-spacing:1px;">W'+types[i]+'</button>';
+  }
+  html += '</div></div>';
+  document.body.insertAdjacentHTML('beforeend', '<div id="dice-chooser" style="position:fixed;inset:0;background:#fff;z-index:200;">'+html+'</div>');
+}
+
+function rollDice(type) {
+  var el = document.getElementById('dice-chooser');
+  if(el) el.parentNode.removeChild(el);
+  diceType = type;
+  currentMode = 'dice_'+type;
+  var r = Math.floor(Math.random()*type)+1;
+  showResult(
+    'W'+type+' Würfel',
+    '⬡',
+    String(r),
+    'Ergebnis: ' + r + ' von ' + type
+  );
+}
+
+// ===================== YES/NO =====================
+function showYesNo() {
+  currentMode = 'yesno';
+  var r = Math.random();
+  var result, sym, sub;
+  if(r < 0.4) { result='JA'; sym='✓'; sub='Die Antwort ist ja.'; }
+  else if(r < 0.8) { result='NEIN'; sym='✗'; sub='Die Antwort ist nein.'; }
+  else { result='VIELLEICHT'; sym='~'; sub='Noch nicht entschieden.'; }
+  showResult('Ja / Nein', sym, result, sub);
+}
+
+// ===================== SHOW RESULT =====================
+function showResult(mode, sym, main, sub) {
+  document.getElementById('result-mode-name').textContent = mode;
+  document.getElementById('result-symbol').textContent = sym;
+  document.getElementById('result-main').textContent = main;
+  document.getElementById('result-sub').textContent = sub;
+  showScreen('result-screen');
+}
+
+function resultAgain() {
+  if(currentMode === 'yesno') showYesNo();
+  else if(currentMode.indexOf('dice_')===0) {
+    var t = parseInt(currentMode.split('_')[1]);
+    rollDice(t);
+  }
+}
+
+// ===================== RANGE =====================
+function showRange() {
+  document.getElementById('range-result-num').style.display = 'none';
+  showScreen('range-screen');
+}
+
+function rangeGo() {
+  var min = parseInt(document.getElementById('range-min').value) || 1;
+  var max = parseInt(document.getElementById('range-max').value) || 100;
+  if(min > max) { var t=min; min=max; max=t; }
+  var r = Math.floor(Math.random()*(max-min+1))+min;
+  var el = document.getElementById('range-result-num');
+  el.textContent = r;
+  el.style.display = 'block';
+}
+
+// ===================== PICKER =====================
+var pickerItems = [];
+
+function showPicker() {
+  pickerItems = [];
+  renderPickerList();
+  document.getElementById('picker-result-banner').style.display = 'none';
+  document.getElementById('picker-input').value = '';
+  showScreen('picker-screen');
+}
+
+function pickerAdd() {
+  var val = document.getElementById('picker-input').value.trim();
+  if(!val) return;
+  pickerItems.push(val);
+  document.getElementById('picker-input').value = '';
+  renderPickerList();
+  document.getElementById('picker-result-banner').style.display = 'none';
+}
+
+function pickerRemove(idx) {
+  pickerItems.splice(idx,1);
+  renderPickerList();
+}
+
+function renderPickerList() {
+  var ul = document.getElementById('picker-items-list');
+  ul.innerHTML = '';
+  for(var i=0;i<pickerItems.length;i++) {
+    var li = document.createElement('li');
+    li.innerHTML = '<span>'+pickerItems[i]+'</span><button onclick="pickerRemove('+i+')">×</button>';
+    ul.appendChild(li);
+  }
+  document.getElementById('picker-go').disabled = pickerItems.length < 2;
+}
+
+function pickerGo() {
+  if(pickerItems.length < 2) return;
+  var idx = Math.floor(Math.random()*pickerItems.length);
+  document.getElementById('picker-winner-text').textContent = pickerItems[idx];
+  document.getElementById('picker-result-banner').style.display = 'block';
+}
+
+// ===================== STOIC COIN =====================
+var stoicResult = '';
+
+function showStoic() {
+  stoicResult = '';
+  document.getElementById('stoic-flip-area').style.display = 'block';
+  document.getElementById('stoic-result-display').style.display = 'none';
+  document.getElementById('stoic-result-text').style.display = 'none';
+  document.getElementById('stoic-insight').style.display = 'none';
+  document.getElementById('stoic-reaction-area').style.display = 'none';
+  showScreen('stoic-screen');
+}
+
+function flipStoic() {
+  stoicResult = Math.random() < 0.5 ? 'A' : 'B';
+  var isKopf = stoicResult === 'A';
+  var text = isKopf ? 'KOPF — Option A' : 'ZAHL — Option B';
+
+  document.getElementById('stoic-flip-area').style.display = 'none';
+  var kopfArt = "   .------.\n  ( o    o )\n  |  ----  |\n  |  KOPF  |\n  (        )\n   '------'";
+  var zahlArt = "   .------.\n  | |||||| |\n  | | 1  | |\n  | |  1 | |\n  | |||||| |\n   '------'";
+  document.getElementById('stoic-result-display').innerHTML = '<pre style="font-family:monospace;font-size:18px;line-height:1.45;display:inline-block;text-align:left;">' + (isKopf ? kopfArt : zahlArt) + '</pre>';
+  document.getElementById('stoic-result-display').style.display = 'block';
+  document.getElementById('stoic-result-text').textContent = text;
+  document.getElementById('stoic-result-text').style.display = 'block';
+  document.getElementById('stoic-insight').textContent = 'Wie reagierst du innerlich auf dieses Ergebnis?';
+  document.getElementById('stoic-insight').style.display = 'block';
+  document.getElementById('stoic-reaction-area').style.display = 'block';
+}
+
+function stoicReaction(r) {
+  var insights = {
+    'gut': {
+      text: 'Du weißt es jetzt.',
+      insight: 'Deine Erleichterung zeigt: Das war die richtige Antwort. Der Münzwurf hat nur sichtbar gemacht was du schon wusstest.'
+    },
+    'schlecht': {
+      text: 'Auch das ist eine Antwort.',
+      insight: 'Deine Enttäuschung zeigt: Du wolltest das andere. Manchmal brauchen wir einen Münzwurf um zu merken was wir wirklich wollen.'
+    },
+    'egal': {
+      text: 'Dann ist es wirklich egal.',
+      insight: 'Wenn dich das Ergebnis kalt lässt, sind beide Optionen gleichwertig. Nimm Option A – irgendwo muss man anfangen.'
+    }
+  };
+  var ins = insights[r];
+  document.getElementById('stoic-reaction-area').style.display = 'none';
+  document.getElementById('stoic-insight').textContent = ins.insight;
+  document.getElementById('stoic-result-text').textContent = ins.text;
+  document.getElementById('stoic-insight').style.display = 'block';
+}
+
+// ===================== REGRET TEST =====================
+function showRegret() {
+  document.getElementById('regret-step1').style.display = 'block';
+  document.getElementById('regret-step2').style.display = 'none';
+  document.getElementById('regret-answer').style.display = 'none';
+  document.getElementById('regret-question-input').value = '';
+  showScreen('regret-screen');
+}
+
+function regretNext() {
+  var q = document.getElementById('regret-question-input').value.trim();
+  if(!q) return;
+  var prompt = 'In 5 Jahren: Wirst du es bereuen, <em>„' + q + '"</em> nicht getan zu haben?';
+  document.getElementById('regret-prompt').innerHTML = prompt;
+  document.getElementById('regret-step1').style.display = 'none';
+  document.getElementById('regret-step2').style.display = 'block';
+}
+
+function regretAnswer(a) {
+  var answers = {
+    'ja': {
+      text: 'TU ES.',
+      insight: 'Zukünftige Reue ist ein starkes Signal. Wenn du schon jetzt weißt dass du es bereuen wirst – was hält dich noch zurück?'
+    },
+    'nein': {
+      text: 'KEIN STRESS.',
+      insight: 'Wenn du es nicht bereuen wirst, ist die Entscheidung schon gefallen. Lass los.'
+    },
+    'weiss': {
+      text: 'WÄHLE WACHSTUM.',
+      insight: 'Bezweifle ich – wähle die Option die dich wachsen lässt, auch wenn sie unbequemer ist. Unsicherheit ist kein Grund zur Untätigkeit.'
+    }
+  };
+  var ans = answers[a];
+  document.getElementById('regret-step2').style.display = 'none';
+  document.getElementById('regret-answer-text').textContent = ans.text;
+  document.getElementById('regret-answer-insight').textContent = ans.insight;
+  document.getElementById('regret-answer').style.display = 'block';
+}
+
+function regretReset() { showRegret(); }
+
+// enter key for inputs
+document.addEventListener('keydown', function(e) {
+  if(e.key === 'Enter') {
+    var active = document.querySelector('.screen.active');
+    if(active && active.id === 'picker-screen') pickerAdd();
+    if(active && active.id === 'regret-screen') {
+      var s1 = document.getElementById('regret-step1');
+      if(s1.style.display !== 'none') regretNext();
+    }
+  }
+});
+</script>
+</body>
+</html>

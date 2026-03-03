@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>COSMOS — Sammle das Universum</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Georgia, serif; background: #fff; color: #000; min-height: 100vh; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ---- MENU ---- */
+#menu {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 36px 20px;
+  text-align: center;
+}
+#menu h1 {
+  font-size: 52px;
+  letter-spacing: 10px;
+  margin-bottom: 4px;
+}
+#menu .sub {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: #888;
+  margin-bottom: 48px;
+  text-transform: uppercase;
+}
+.big-btn {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 12px auto;
+  padding: 20px;
+  font-size: 17px;
+  font-family: Georgia, serif;
+  border: 2px solid #000;
+  background: #fff;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.big-btn.primary { background: #000; color: #fff; }
+.big-btn:active { background: #000; color: #fff; }
+.big-btn.primary:active { background: #fff; color: #000; }
+
+#menu-stats {
+  margin-top: 36px;
+  font-size: 12px;
+  color: #999;
+  letter-spacing: 2px;
+}
+
+/* ---- HEADER ---- */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 2px solid #000;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.page-header .title {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #666;
+}
+.page-header button {
+  font-size: 12px;
+  padding: 6px 12px;
+  border: 1px solid #000;
+  background: #fff;
+  font-family: Georgia, serif;
+  cursor: pointer;
+}
+.page-header button:active { background: #000; color: #fff; }
+
+/* ---- DRAW SCREEN ---- */
+#draw-screen { min-height: 100vh; }
+#draw-body {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 16px;
+  text-align: center;
+}
+
+#draw-rarity-label {
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 6px;
+  min-height: 18px;
+}
+
+#draw-ascii {
+  font-family: monospace;
+  font-size: 16px;
+  line-height: 1.5;
+  display: inline-block;
+  text-align: left;
+  border: 2px solid #000;
+  padding: 16px 20px;
+  margin: 10px 0 14px;
+  min-width: 220px;
+  min-height: 120px;
+  vertical-align: top;
+  background: #fff;
+}
+
+#draw-name {
+  font-size: 26px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  margin-bottom: 4px;
+}
+#draw-latin {
+  font-size: 12px;
+  color: #777;
+  font-style: italic;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+#draw-desc {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.6;
+  max-width: 320px;
+  margin: 0 auto 12px;
+}
+#draw-type-badge {
+  display: inline-block;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  border: 1px solid #000;
+  padding: 3px 10px;
+  margin-bottom: 16px;
+}
+
+#draw-new-badge {
+  display: none;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #fff;
+  background: #000;
+  padding: 4px 12px;
+  margin: 0 auto 16px;
+  display: none;
+}
+
+#draw-prob-bar {
+  max-width: 280px;
+  margin: 0 auto 20px;
+}
+#draw-prob-bar .bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 3px;
+  letter-spacing: 1px;
+}
+#draw-prob-track {
+  height: 6px;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+#draw-prob-fill {
+  height: 100%;
+  background: #000;
+}
+
+#draw-progress {
+  font-size: 11px;
+  color: #aaa;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+
+#btn-draw {
+  display: block;
+  width: 240px;
+  margin: 0 auto 10px;
+  padding: 20px;
+  font-size: 18px;
+  font-family: Georgia, serif;
+  border: 2px solid #000;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+#btn-draw:active { background: #fff; color: #000; }
+
+#draw-count-label {
+  font-size: 11px;
+  color: #bbb;
+  letter-spacing: 2px;
+}
+
+/* ---- COLLECTION SCREEN ---- */
+#coll-screen { min-height: 100vh; }
+#coll-body {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 12px 10px;
+}
+
+#coll-filter {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.filter-btn {
+  font-size: 11px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  background: #fff;
+  font-family: Georgia, serif;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.filter-btn.active { background: #000; color: #fff; border-color: #000; }
+
+#coll-progress-bar {
+  margin-bottom: 14px;
+}
+#coll-progress-bar .bar-track {
+  height: 8px;
+  border: 1px solid #000;
+  margin-bottom: 4px;
+}
+#coll-progress-bar .bar-fill { height: 100%; background: #000; }
+#coll-progress-text {
+  font-size: 11px;
+  color: #888;
+  letter-spacing: 2px;
+}
+
+#coll-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.coll-item {
+  border: 1px solid #ddd;
+  padding: 10px 8px;
+  text-align: center;
+}
+.coll-item.owned { border-color: #000; border-width: 2px; }
+.coll-item.locked { opacity: 0.3; }
+
+.coll-item pre {
+  font-family: monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  display: inline-block;
+  text-align: left;
+  margin-bottom: 6px;
+}
+.coll-item .item-name {
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 2px;
+}
+.coll-item .item-rarity {
+  font-size: 10px;
+  color: #aaa;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.coll-item .item-count {
+  font-size: 10px;
+  color: #888;
+  margin-top: 3px;
+}
+</style>
+</head>
+<body>
+
+<!-- MENU -->
+<div id="menu" class="screen active">
+  <h1>✦ COSMOS</h1>
+  <div class="sub">Sammle das Universum</div>
+  <button class="big-btn primary" onclick="showDraw()">✦ Ziehen</button>
+  <button class="big-btn" onclick="showColl()">Sammlung</button>
+  <div id="menu-stats">Geladen...</div>
+</div>
+
+<!-- DRAW -->
+<div id="draw-screen" class="screen">
+  <div class="page-header">
+    <span class="title">Ziehen</span>
+    <button onclick="showScreen('menu');updateMenuStats()">↩ Menü</button>
+  </div>
+  <div id="draw-body">
+    <div id="draw-rarity-label"></div>
+    <pre id="draw-ascii">         *
+      *     *
+   *           *
+      *     *
+         *      </pre>
+    <div id="draw-name">—</div>
+    <div id="draw-latin"></div>
+    <div id="draw-type-badge">—</div>
+    <div id="draw-desc"></div>
+    <div id="draw-new-badge">NEU ENTDECKT</div>
+
+    <div id="draw-prob-bar">
+      <div class="bar-label">
+        <span id="draw-prob-name"></span>
+        <span id="draw-prob-pct"></span>
+      </div>
+      <div id="draw-prob-track"><div id="draw-prob-fill"></div></div>
+    </div>
+
+    <div id="draw-progress"></div>
+    <button id="btn-draw" onclick="doDraw()">✦ ZIEHEN</button>
+    <div id="draw-count-label"></div>
+  </div>
+</div>
+
+<!-- COLLECTION -->
+<div id="coll-screen" class="screen">
+  <div class="page-header">
+    <span class="title">Sammlung</span>
+    <button onclick="showScreen('menu');updateMenuStats()">↩ Menü</button>
+  </div>
+  <div id="coll-body">
+    <div id="coll-progress-bar">
+      <div class="bar-track"><div class="bar-fill" id="coll-bar-fill"></div></div>
+      <div id="coll-progress-text"></div>
+    </div>
+    <div id="coll-filter">
+      <button class="filter-btn active" onclick="filterColl('all',this)">Alle</button>
+      <button class="filter-btn" onclick="filterColl('Sternbild',this)">Sternbilder</button>
+      <button class="filter-btn" onclick="filterColl('Planet',this)">Planeten</button>
+      <button class="filter-btn" onclick="filterColl('Objekt',this)">Objekte</button>
+      <button class="filter-btn" onclick="filterColl('owned',this)">Gesammelt</button>
+    </div>
+    <div id="coll-grid"></div>
+  </div>
+</div>
+
+<script>
+// ===================== DATA =====================
+var ITEMS = [
+
+  // ===== STERNBILDER =====
+  // Häufig (60% pool)
+  { id:'orion', name:'Orion', latin:'Orion', type:'Sternbild', rarity:'Häufig', prob:8,
+    desc:'Der Jäger. Drei Gürtelsterne machen ihn unverwechselbar.',
+    art:"   *   *   \n * . * . *\n  *-----* \n * . | . *\n   * | *  \n   / | \\  " },
+
+  { id:'cassiopeia', name:'Kassiopeia', latin:'Cassiopeia', type:'Sternbild', rarity:'Häufig', prob:7,
+    desc:'Das himmliche W. Zirkumpolar — immer sichtbar.',
+    art:"*   *   * \n * * * *  \n  *   *   \n          " },
+
+  { id:'ursamajor', name:'Großer Bär', latin:'Ursa Major', type:'Sternbild', rarity:'Häufig', prob:7,
+    desc:'Der Große Wagen. Nordpol-Wegweiser seit Jahrtausenden.',
+    art:"  * *      \n *   *--* \n         *\n        * " },
+
+  { id:'ursaminor', name:'Kleiner Bär', latin:'Ursa Minor', type:'Sternbild', rarity:'Häufig', prob:6,
+    desc:'Der Polarstern sitzt an seiner Schwanzspitze.',
+    art:" *        \n  *--*    \n     *  * \n      * * " },
+
+  { id:'leo', name:'Löwe', latin:'Leo', type:'Sternbild', rarity:'Häufig', prob:6,
+    desc:'Frühlingssternbild. Der Sichelast markiert den Kopf.',
+    art:" *--*     \n*    *    \n * *  *--*\n          " },
+
+  { id:'taurus', name:'Stier', latin:'Taurus', type:'Sternbild', rarity:'Häufig', prob:5,
+    desc:'Aldebaran leuchtet rot. Die Plejaden sitzen auf seinem Rücken.',
+    art:"  * *     \n*   *--*  \n  *       \n   *    * " },
+
+  { id:'gemini', name:'Zwillinge', latin:'Gemini', type:'Sternbild', rarity:'Häufig', prob:5,
+    desc:'Castor und Pollux — zwei helle Sterne Seite an Seite.',
+    art:" *   *    \n |   |    \n *   *    \n |   |    \n *   *    " },
+
+  { id:'cygnus', name:'Schwan', latin:'Cygnus', type:'Sternbild', rarity:'Häufig', prob:5,
+    desc:'Das Nordkreuz. Deneb markiert den Schwanz.',
+    art:"    *     \n    |     \n*---+---* \n    |     \n   * *    " },
+
+  // Selten (25% pool)
+  { id:'scorpius', name:'Skorpion', latin:'Scorpius', type:'Sternbild', rarity:'Selten', prob:4,
+    desc:'Antares brennt rot im Herz. Nur im Sommer sichtbar.',
+    art:" *        \n  *       \n *--*     \n    *     \n    *,    \n     `.   " },
+
+  { id:'sagittarius', name:'Schütze', latin:'Sagittarius', type:'Sternbild', rarity:'Selten', prob:4,
+    desc:'Zeigt zur Galaxienmitte. Die Milchstraße ist hier am dichtesten.',
+    art:"  *  *    \n * /  *   \n*/    *   \n *  *     " },
+
+  { id:'virgo', name:'Jungfrau', latin:'Virgo', type:'Sternbild', rarity:'Selten', prob:3,
+    desc:'Spica leuchtet blau-weiß. Größtes Sternbild der Ekliptik.',
+    art:"*         \n  *--*    \n      *   \n   *--*   \n *        " },
+
+  { id:'aquarius', name:'Wassermann', latin:'Aquarius', type:'Sternbild', rarity:'Selten', prob:3,
+    desc:'Ein antikes Sternbild. Herbsthimmel.',
+    art:"  *       \n * *      \n*   *--*  \n    |     \n   *+*    " },
+
+  { id:'perseus', name:'Perseus', latin:'Perseus', type:'Sternbild', rarity:'Selten', prob:3,
+    desc:'Trägt das Haupt der Medusa — den veränderlichen Algol.',
+    art:"  *       \n *  *     \n*    *--* \n  *       \n   *      " },
+
+  { id:'lyra', name:'Leier', latin:'Lyra', type:'Sternbild', rarity:'Selten', prob:3,
+    desc:'Vega — einer der hellsten Sterne. War einst Polarstern.',
+    art:"    *     \n   / \\    \n  *   *   \n  |   |   \n  *---*   " },
+
+  { id:'hercules', name:'Herkules', latin:'Hercules', type:'Sternbild', rarity:'Selten', prob:2,
+    desc:'Enthält M13 — den schönsten Kugelsternhaufen des Nordhimmels.',
+    art:" * * *    \n  \\|/     \n*--+--*   \n  /|\\     \n * * *    " },
+
+  // Episch (10% pool)
+  { id:'centaurus', name:'Zentaur', latin:'Centaurus', type:'Sternbild', rarity:'Episch', prob:2,
+    desc:'Alpha Centauri — unser nächster Nachbarstern. 4,3 Lichtjahre.',
+    art:"* *       \n   \\      \n  * *--*  \n *    *   \n*      *  " },
+
+  { id:'crux', name:'Kreuz des Südens', latin:'Crux', type:'Sternbild', rarity:'Episch', prob:2,
+    desc:'Nur von der Südhalbkugel sichtbar. Symbol Australiens.',
+    art:"    *     \n    |     \n *--+--*  \n    |     \n    *     " },
+
+  { id:'draco', name:'Drache', latin:'Draco', type:'Sternbild', rarity:'Episch', prob:1.5,
+    desc:'Windet sich um den Nordhimmel. War vor 5000 Jahren Polarstern.',
+    art:" *--*     \n|    \\    \n*  *  *   \n    \\  \\  \n     *--* " },
+
+  // Legendär (4% pool)
+  { id:'orionbelt', name:'Gürtel des Orion', latin:'Tres Mariae', type:'Sternbild', rarity:'Legendär', prob:0.8,
+    desc:'Alnitak, Alnilam, Mintaka. Drei Sterne in perfekter Linie.',
+    art:"          \n *  *  *  \n          \n  Mintaka  \n  Alnilam  \n  Alnitak  " },
+
+  // ===== PLANETEN =====
+  { id:'merkur', name:'Merkur', latin:'Mercurius', type:'Planet', rarity:'Häufig', prob:5,
+    desc:'Kleinster Planet. Extremste Temperaturschwankungen: -180 bis +430°C.',
+    art:"   .---.   \n  /     \\  \n |  ___  | \n  \\_____/  \n   '---'   " },
+
+  { id:'venus', name:'Venus', latin:'Venus', type:'Planet', rarity:'Häufig', prob:5,
+    desc:'Hellster Punkt am Nachthimmel. Heißer als Merkur trotz größerer Distanz.',
+    art:"   .---.   \n  / ~~~ \\  \n | ~~~~~ | \n  \\ ~~~ /  \n   '---'   " },
+
+  { id:'mars', name:'Mars', latin:'Mars', type:'Planet', rarity:'Häufig', prob:5,
+    desc:'Der Rote Planet. Olympus Mons: höchster Berg im Sonnensystem.',
+    art:"   .---.   \n  / . . \\  \n | .   . | \n  \\ . . /  \n   '---'   " },
+
+  { id:'jupiter', name:'Jupiter', latin:'Iuppiter', type:'Planet', rarity:'Selten', prob:3,
+    desc:'Größter Planet. Der Große Rote Fleck ist ein Sturm seit 350 Jahren.',
+    art:"  .-----.  \n / ----- \\ \n| ======= |\n \\ ----- / \n  '-----'  " },
+
+  { id:'saturn', name:'Saturn', latin:'Saturnus', type:'Planet', rarity:'Selten', prob:3,
+    desc:'Ringe aus Eis und Gestein. Leichter als Wasser — würde schwimmen.',
+    art:" ----.---- \n    / \\    \n   /   \\   \n ---+--- \n   \\   /   \n    ---    " },
+
+  { id:'uranus', name:'Uranus', latin:'Uranus', type:'Planet', rarity:'Episch', prob:2,
+    desc:'Rotiert auf der Seite. Entdeckt 1781 — erster mit Teleskop.',
+    art:"   .---.   \n.-/     \\-.\n|         |\n'-\\     /-'\n   '---'   " },
+
+  { id:'neptun', name:'Neptun', latin:'Neptunus', type:'Planet', rarity:'Episch', prob:1.5,
+    desc:'Windgeschwindigkeiten bis 2100 km/h. Tiefblau durch Methan.',
+    art:"   .---.   \n  /~~~~~\\  \n |~~~~~~~| \n  \\~~~~~/  \n   '---'   " },
+
+  { id:'pluto', name:'Pluto', latin:'Pluto', type:'Planet', rarity:'Legendär', prob:0.7,
+    desc:'Zwergplanet. Hat ein Herz aus gefrorenem Stickstoff.',
+    art:"   .___.   \n  /     \\  \n | <3    | \n  \\_____/  \n   '---'   " },
+
+  // ===== OBJEKTE =====
+  { id:'plejaden', name:'Plejaden', latin:'Pleiades', type:'Objekt', rarity:'Häufig', prob:4,
+    desc:'Sieben Schwestern. Offener Sternhaufen, 440 Lichtjahre entfernt.',
+    art:" * * *    \n* * * *   \n * * *    " },
+
+  { id:'milchstrasse', name:'Milchstraße', latin:'Via Lactea', type:'Objekt', rarity:'Selten', prob:3,
+    desc:'Unsere Heimatgalaxie. 200 Milliarden Sterne, 100.000 Lichtjahre breit.',
+    art:"  . . . . .\n . . * . . \n. . . * . .\n . * . . . \n. . . . . ." },
+
+  { id:'andromedagal', name:'Andromeda', latin:'M31', type:'Objekt', rarity:'Selten', prob:2,
+    desc:'Nächste Galaxie. Mit bloßem Auge sichtbar. 2,5 Millionen Lj.',
+    art:"    .      \n  .::.     \n .::::.    \n  .::.     \n    .      " },
+
+  { id:'orionnebel', name:'Orionnebel', latin:'M42', type:'Objekt', rarity:'Selten', prob:2,
+    desc:'Sternenwiege. Hier entstehen gerade neue Sterne.',
+    art:"  . * .   \n . \\|/ .  \n*---+---* \n . /|\\ .  \n  . * .   " },
+
+  { id:'krebsnebel', name:'Krebsnebel', latin:'M1', type:'Objekt', rarity:'Episch', prob:1.5,
+    desc:'Überrest einer Supernova von 1054. Beobachtet von chinesischen Astronomen.',
+    art:"  .:::.   \n .::.::. \n:::.  .:: \n .::.::. \n  .:::.  " },
+
+  { id:'ringnebel', name:'Ringnebel', latin:'M57', type:'Objekt', rarity:'Episch', prob:1,
+    desc:'Planetarischer Nebel in der Leier. Sterbender Stern umgeben von Gas.',
+    art:"   .---.  \n  /     \\ \n |  [ ]  |\n  \\     / \n   '---'  " },
+
+  { id:'schwarzloch', name:'Schwarzes Loch', latin:'Singularitas', type:'Objekt', rarity:'Mythisch', prob:0.3,
+    desc:'Nichts entkommt. Nicht einmal Licht. Singularität der Raumzeit.',
+    art:"  . . .   \n . \\|/ .  \n .--@--. \n . /|\\ .  \n  . . .   " },
+
+  { id:'neutronenstern', name:'Neutronenstern', latin:'Stella Neutronica', type:'Objekt', rarity:'Mythisch', prob:0.2,
+    desc:'Ein Teelöffel wiegt eine Milliarde Tonnen. Rotiert 700× pro Sekunde.',
+    art:"    *     \n   ***    \n  *****   \n   ***    \n    *     " },
+
+  { id:'pulsar', name:'Pulsar', latin:'Pulsarius', type:'Objekt', rarity:'Mythisch', prob:0.2,
+    desc:'Leuchtturm des Alls. Sendet Radiostrahlen mit Uhren-Präzision.',
+    art:"    |     \n   -+-    \n -- * --  \n   -+-    \n    |     " },
+
+  { id:'wurmloch', name:'Wurmloch', latin:'Fovea Spatio-temporalis', type:'Objekt', rarity:'Mythisch', prob:0.1,
+    desc:'Theoretischer Tunnel durch die Raumzeit. Vielleicht existieren sie.',
+    art:"  .---.   \n /  o  \\  \n| o   o | \n \\  o  /  \n  '---'   " },
+];
+
+// Rarities config
+var RARITIES = {
+  'Häufig':   { label: 'HÄUFIG',   pct: 60 },
+  'Selten':   { label: 'SELTEN',   pct: 25 },
+  'Episch':   { label: 'EPISCH',   pct: 10 },
+  'Legendär': { label: 'LEGENDÄR', pct: 4  },
+  'Mythisch': { label: 'MYTHISCH', pct: 1  },
+};
+
+// ===================== STATE =====================
+var collection = {}; // id -> count
+var totalDraws = 0;
+var lastDraw = null;
+var currentFilter = 'all';
+
+function loadState() {
+  try {
+    var s = localStorage.getItem('cosmos_v1');
+    if(s) {
+      var d = JSON.parse(s);
+      collection = d.collection || {};
+      totalDraws = d.totalDraws || 0;
+    }
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('cosmos_v1', JSON.stringify({ collection: collection, totalDraws: totalDraws }));
+  } catch(e) {}
+}
+
+// ===================== DRAW LOGIC =====================
+function weightedRandom() {
+  var total = 0;
+  for(var i=0;i<ITEMS.length;i++) total += ITEMS[i].prob;
+  var r = Math.random() * total;
+  var cum = 0;
+  for(var i=0;i<ITEMS.length;i++) {
+    cum += ITEMS[i].prob;
+    if(r <= cum) return ITEMS[i];
+  }
+  return ITEMS[ITEMS.length-1];
+}
+
+function doDraw() {
+  var item = weightedRandom();
+  var isNew = !collection[item.id];
+  if(!collection[item.id]) collection[item.id] = 0;
+  collection[item.id]++;
+  totalDraws++;
+  lastDraw = item;
+  saveState();
+  renderDraw(item, isNew);
+}
+
+// ===================== RENDER DRAW =====================
+function renderDraw(item, isNew) {
+  var rar = RARITIES[item.rarity];
+  document.getElementById('draw-rarity-label').textContent = rar.label + ' · ' + rar.pct + '% CHANCE';
+  document.getElementById('draw-ascii').textContent = item.art;
+  document.getElementById('draw-name').textContent = item.name;
+  document.getElementById('draw-latin').textContent = item.latin;
+  document.getElementById('draw-type-badge').textContent = item.type;
+  document.getElementById('draw-desc').textContent = item.desc;
+
+  var newBadge = document.getElementById('draw-new-badge');
+  if(isNew) {
+    newBadge.style.display = 'inline-block';
+  } else {
+    newBadge.style.display = 'none';
+  }
+
+  // prob bar
+  document.getElementById('draw-prob-name').textContent = item.rarity;
+  document.getElementById('draw-prob-pct').textContent = rar.pct + '%';
+  document.getElementById('draw-prob-fill').style.width = rar.pct + '%';
+
+  // progress
+  var owned = Object.keys(collection).length;
+  var total = ITEMS.length;
+  document.getElementById('draw-progress').textContent = owned + ' / ' + total + ' entdeckt';
+  document.getElementById('draw-count-label').textContent = totalDraws + 'x gezogen · ' + collection[item.id] + 'x dieses Item';
+}
+
+// ===================== COLLECTION =====================
+function filterColl(f, btn) {
+  currentFilter = f;
+  var btns = document.querySelectorAll('.filter-btn');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+  renderCollection();
+}
+
+function renderCollection() {
+  var owned = Object.keys(collection).length;
+  var total = ITEMS.length;
+  var pct = Math.round(owned/total*100);
+  document.getElementById('coll-bar-fill').style.width = pct + '%';
+  document.getElementById('coll-progress-text').textContent = owned + ' / ' + total + ' entdeckt · ' + pct + '%';
+
+  var filtered = ITEMS.filter(function(item) {
+    if(currentFilter === 'all') return true;
+    if(currentFilter === 'owned') return !!collection[item.id];
+    return item.type === currentFilter;
+  });
+
+  var grid = document.getElementById('coll-grid');
+  grid.innerHTML = '';
+
+  for(var i=0;i<filtered.length;i++) {
+    var item = filtered[i];
+    var isOwned = !!collection[item.id];
+    var div = document.createElement('div');
+    div.className = 'coll-item' + (isOwned ? ' owned' : ' locked');
+    div.innerHTML =
+      '<pre>' + (isOwned ? item.art : item.art.replace(/[^\n]/g, '?')) + '</pre>' +
+      '<span class="item-name">' + (isOwned ? item.name : '???') + '</span>' +
+      '<span class="item-rarity">' + item.rarity + '</span>' +
+      (isOwned && collection[item.id] > 1 ? '<div class="item-count">×' + collection[item.id] + '</div>' : '');
+    grid.appendChild(div);
+  }
+}
+
+// ===================== MENU STATS =====================
+function updateMenuStats() {
+  var owned = Object.keys(collection).length;
+  var total = ITEMS.length;
+  document.getElementById('menu-stats').textContent =
+    owned + ' / ' + total + ' entdeckt · ' + totalDraws + 'x gezogen';
+}
+
+// ===================== SCREENS =====================
+function showScreen(id) {
+  var all = document.querySelectorAll('.screen');
+  for(var i=0;i<all.length;i++) all[i].classList.remove('active');
+  document.getElementById(id).classList.add('active');
+}
+
+function showDraw() {
+  showScreen('draw-screen');
+  if(lastDraw) {
+    renderDraw(lastDraw, false);
+  } else {
+    // show placeholder
+    var owned = Object.keys(collection).length;
+    document.getElementById('draw-progress').textContent = owned + ' / ' + ITEMS.length + ' entdeckt';
+    document.getElementById('draw-count-label').textContent = totalDraws + 'x gezogen';
+    document.getElementById('draw-name').textContent = '— Ziehe dein erstes Item —';
+    document.getElementById('draw-rarity-label').textContent = '';
+    document.getElementById('draw-latin').textContent = '';
+    document.getElementById('draw-desc').textContent = 'Drücke Ziehen um ein zufälliges Himmelsobjekt zu entdecken.';
+    document.getElementById('draw-type-badge').textContent = '?';
+    document.getElementById('draw-prob-pct').textContent = '';
+    document.getElementById('draw-prob-name').textContent = '';
+    document.getElementById('draw-prob-fill').style.width = '0%';
+  }
+}
+
+function showColl() {
+  showScreen('coll-screen');
+  renderCollection();
+}
+
+// ===================== INIT =====================
+loadState();
+updateMenuStats();
+</script>
+</body>
+</html>
