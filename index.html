@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>E-Ink Hub</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Georgia, serif; background: #fff; color: #000; overflow: hidden; }
+        
+        /* Tab Navigation */
+        nav {
+            display: flex;
+            border-bottom: 2px solid #000;
+            background: #fff;
+            height: 50px;
+        }
+        .tab-btn {
+            flex: 1;
+            border: none;
+            background: #fff;
+            font-family: Georgia, serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-right: 1px solid #000;
+            font-size: 14px;
+        }
+        .tab-btn:last-child { border-right: none; }
+        .tab-btn.active { background: #000; color: #fff; }
+
+        /* Content Bereich */
+        .tab-content {
+            display: none;
+            width: 100%;
+            height: calc(100vh - 50px);
+        }
+        .tab-content.active { display: block; }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <button class="tab-btn active" onclick="openTab(event, 'decider-tab')">Decider</button>
+    <button class="tab-btn" onclick="openTab(event, 'durak-tab')">Durak</button>
+    <button class="tab-btn" onclick="openTab(event, 'cosmos-tab')">Cosmos</button>
+</nav>
+
+<div id="decider-tab" class="tab-content active">
+    <iframe src="decider.html"></iframe>
+</div>
+
+<div id="durak-tab" class="tab-content">
+    <iframe src="durak.html"></iframe>
+</div>
+
+<div id="cosmos-tab" class="tab-content">
+    <iframe src="cosmos.html"></iframe>
+</div>
+
+<script>
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].classList.remove("active");
+        }
+        tablinks = document.getElementsByClassName("tab-btn");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("active");
+        }
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+</script>
+
+</body>
+</html>
