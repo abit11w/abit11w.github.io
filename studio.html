@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Skizze & Maze</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: Georgia, serif; background: #fff; color: #000; min-height: 100vh; overflow-x: hidden; }
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ---- MENU ---- */
+#menu { text-align: center; padding: 50px 20px; }
+#menu h1 { font-size: 40px; letter-spacing: 8px; margin-bottom: 6px; }
+#menu .sub { font-size: 11px; letter-spacing: 4px; color: #aaa; margin-bottom: 50px; text-transform: uppercase; }
+.mbtn {
+  display: block; width: 260px; margin: 14px auto; padding: 22px;
+  font-size: 18px; font-family: Georgia, serif; border: 2px solid #000;
+  background: #fff; cursor: pointer; letter-spacing: 3px; text-transform: uppercase;
+}
+.mbtn:active { background: #000; color: #fff; }
+.mbtn.primary { background: #000; color: #fff; }
+.mbtn.primary:active { background: #fff; color: #000; }
+
+/* ---- TOP BAR ---- */
+.top-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 12px; border-bottom: 2px solid #000;
+  background: #fff; position: sticky; top: 0; z-index: 20;
+}
+.top-bar h2 { font-size: 14px; letter-spacing: 4px; text-transform: uppercase; }
+.top-bar-actions { display: flex; gap: 6px; }
+.tbar-btn {
+  font-size: 12px; padding: 6px 10px; border: 1px solid #000;
+  background: #fff; font-family: Georgia, serif; cursor: pointer; letter-spacing: 1px;
+}
+.tbar-btn:active { background: #000; color: #fff; }
+.tbar-btn.on { background: #000; color: #fff; }
+
+/* ============ SKIZZENBLOCK ============ */
+#sketch-screen {}
+#sketch-toolbar {
+  display: flex; gap: 6px; padding: 8px 10px; border-bottom: 1px solid #ddd;
+  flex-wrap: wrap; align-items: center; background: #fff;
+  position: sticky; top: 53px; z-index: 10;
+}
+.tool-btn {
+  font-size: 12px; padding: 7px 12px; border: 1px solid #ccc;
+  background: #fff; font-family: Georgia, serif; cursor: pointer; letter-spacing: 1px;
+}
+.tool-btn.on { background: #000; color: #fff; border-color: #000; }
+.tool-btn:active { background: #000; color: #fff; }
+#sketch-size-label { font-size: 11px; color: #aaa; letter-spacing: 2px; margin-left: auto; }
+
+#sketch-wrap {
+  overflow: auto;
+  padding: 10px;
+  background: #fff;
+}
+
+#sketch-grid {
+  display: inline-grid;
+  border: 1px solid #000;
+  user-select: none;
+  cursor: crosshair;
+}
+
+.sc {
+  width: 14px; height: 14px;
+  background: #fff;
+  border-right: 1px solid #e8e8e8;
+  border-bottom: 1px solid #e8e8e8;
+}
+.sc.filled { background: #000; }
+.sc.grey { background: #888; }
+
+#sketch-status {
+  text-align: center; padding: 6px; font-size: 11px; color: #bbb; letter-spacing: 2px;
+  border-top: 1px solid #eee;
+}
+
+/* ============ MAZE ============ */
+#maze-screen {}
+#maze-info {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 12px; border-bottom: 1px solid #ddd; font-size: 12px; color: #888; letter-spacing: 2px;
+}
+#maze-wrap {
+  overflow: auto;
+  padding: 8px;
+  text-align: center;
+}
+#maze-canvas {
+  display: inline-block;
+  border: 2px solid #000;
+}
+
+/* Maze controls */
+#maze-controls {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  border-top: 2px solid #000;
+  padding: 10px;
+}
+#maze-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 64px);
+  grid-template-rows: repeat(3, 64px);
+  gap: 4px;
+  margin: 0 auto;
+  width: fit-content;
+}
+.dpad-btn {
+  width: 64px; height: 64px;
+  font-size: 24px; font-family: Georgia, serif;
+  border: 2px solid #000; background: #fff;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.dpad-btn:active { background: #000; color: #fff; }
+.dpad-empty { border: none; background: none; }
+
+#maze-win-msg {
+  display: none; text-align: center; padding: 16px;
+  font-size: 20px; letter-spacing: 4px; font-weight: bold;
+  border-bottom: 1px solid #000;
+}
+#maze-win-msg.show { display: block; }
+
+#maze-bottom-btns {
+  display: flex; gap: 8px; justify-content: center; margin-top: 8px;
+}
+#maze-bottom-btns button {
+  padding: 10px 20px; font-size: 13px; font-family: Georgia, serif;
+  border: 1px solid #000; background: #fff; cursor: pointer; letter-spacing: 1px;
+}
+#maze-bottom-btns button:active { background: #000; color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- MENU -->
+<div id="menu" class="screen active">
+  <h1>✏ STUDIO</h1>
+  <div class="sub">Skizze & Labyrinth</div>
+  <button class="mbtn primary" onclick="showSketch()">✏ Skizzenblock</button>
+  <button class="mbtn" onclick="showMaze()">⬡ Labyrinth</button>
+</div>
+
+<!-- SKIZZENBLOCK -->
+<div id="sketch-screen" class="screen">
+  <div class="top-bar">
+    <h2>Skizzenblock</h2>
+    <div class="top-bar-actions">
+      <button class="tbar-btn" onclick="sketchClear()">Löschen</button>
+      <button class="tbar-btn" onclick="showScreen('menu')">↩ Menü</button>
+    </div>
+  </div>
+  <div id="sketch-toolbar">
+    <button class="tool-btn on" id="tool-stift" onclick="setTool('stift',this)">Stift</button>
+    <button class="tool-btn" id="tool-fett" onclick="setTool('fett',this)">Fett</button>
+    <button class="tool-btn" id="tool-grau" onclick="setTool('grau',this)">Grau</button>
+    <button class="tool-btn" id="tool-radier" onclick="setTool('radier',this)">Radierer</button>
+    <span id="sketch-size-label">40 × 55</span>
+  </div>
+  <div id="sketch-wrap">
+    <div id="sketch-grid"></div>
+  </div>
+  <div id="sketch-status">Tippe auf Zellen zum Zeichnen</div>
+</div>
+
+<!-- MAZE -->
+<div id="maze-screen" class="screen">
+  <div class="top-bar">
+    <h2>Labyrinth</h2>
+    <div class="top-bar-actions">
+      <button class="tbar-btn" id="maze-diff-btn" onclick="cycleDiff()">Mittel</button>
+      <button class="tbar-btn" onclick="newMaze()">Neu</button>
+      <button class="tbar-btn" onclick="showScreen('menu')">↩ Menü</button>
+    </div>
+  </div>
+  <div id="maze-info">
+    <span id="maze-steps-label">Schritte: 0</span>
+    <span id="maze-size-label">—</span>
+  </div>
+  <div id="maze-win-msg">ZIEL ERREICHT! 🎉</div>
+  <div id="maze-wrap">
+    <canvas id="maze-canvas"></canvas>
+  </div>
+  <div id="maze-controls">
+    <div id="maze-dpad">
+      <div class="dpad-empty"></div>
+      <button class="dpad-btn" onclick="movePlayer(0,-1)">▲</button>
+      <div class="dpad-empty"></div>
+      <button class="dpad-btn" onclick="movePlayer(-1,0)">◀</button>
+      <div class="dpad-empty" style="border:none;"></div>
+      <button class="dpad-btn" onclick="movePlayer(1,0)">▶</button>
+      <div class="dpad-empty"></div>
+      <button class="dpad-btn" onclick="movePlayer(0,1)">▼</button>
+      <div class="dpad-empty"></div>
+    </div>
+    <div id="maze-bottom-btns">
+      <button onclick="toggleSolution()">Lösung</button>
+      <button onclick="newMaze()">Neues Maze</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== SCREENS =====================
+function showScreen(id) {
+  var all = document.querySelectorAll('.screen');
+  for(var i=0;i<all.length;i++) all[i].classList.remove('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ===================== SKIZZENBLOCK =====================
+var COLS = 40, ROWS = 55;
+var sketchData = [];
+var currentTool = 'stift';
+var isDrawing = false;
+
+function initSketch() {
+  sketchData = [];
+  for(var i=0;i<ROWS*COLS;i++) sketchData.push(0); // 0=white,1=black,2=grey
+  buildSketchGrid();
+}
+
+function buildSketchGrid() {
+  var grid = document.getElementById('sketch-grid');
+  grid.style.gridTemplateColumns = 'repeat('+COLS+', 14px)';
+  grid.innerHTML = '';
+  for(var i=0;i<ROWS*COLS;i++) {
+    var cell = document.createElement('div');
+    cell.className = 'sc';
+    cell.setAttribute('data-i', i);
+    grid.appendChild(cell);
+  }
+  // Touch/click events
+  grid.addEventListener('mousedown', function(e){ isDrawing=true; paintCell(e); });
+  grid.addEventListener('mousemove', function(e){ if(isDrawing) paintCell(e); });
+  grid.addEventListener('mouseup', function(){ isDrawing=false; });
+  grid.addEventListener('touchstart', function(e){ e.preventDefault(); isDrawing=true; paintCellTouch(e); }, {passive:false});
+  grid.addEventListener('touchmove', function(e){ e.preventDefault(); if(isDrawing) paintCellTouch(e); }, {passive:false});
+  grid.addEventListener('touchend', function(){ isDrawing=false; });
+}
+
+function paintCell(e) {
+  var el = e.target;
+  if(!el.classList.contains('sc')) return;
+  var i = parseInt(el.getAttribute('data-i'));
+  applyTool(i, el);
+}
+
+function paintCellTouch(e) {
+  var touch = e.touches[0];
+  var el = document.elementFromPoint(touch.clientX, touch.clientY);
+  if(!el || !el.classList.contains('sc')) return;
+  var i = parseInt(el.getAttribute('data-i'));
+  applyTool(i, el);
+}
+
+function applyTool(i, el) {
+  if(currentTool === 'stift') {
+    sketchData[i] = 1;
+    el.className = 'sc filled';
+  } else if(currentTool === 'fett') {
+    // fill 2x2
+    var col = i % COLS, row = Math.floor(i / COLS);
+    for(var dr=0;dr<2;dr++) for(var dc=0;dc<2;dc++) {
+      var ni = (row+dr)*COLS+(col+dc);
+      if(ni < sketchData.length && (col+dc) < COLS) {
+        sketchData[ni] = 1;
+        var cel = document.querySelector('[data-i="'+ni+'"]');
+        if(cel) cel.className = 'sc filled';
+      }
+    }
+  } else if(currentTool === 'grau') {
+    sketchData[i] = 2;
+    el.className = 'sc grey';
+  } else if(currentTool === 'radier') {
+    sketchData[i] = 0;
+    el.className = 'sc';
+  }
+}
+
+function setTool(tool, btn) {
+  currentTool = tool;
+  var btns = document.querySelectorAll('.tool-btn');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('on');
+  btn.classList.add('on');
+}
+
+function sketchClear() {
+  for(var i=0;i<sketchData.length;i++) sketchData[i]=0;
+  var cells = document.querySelectorAll('.sc');
+  for(var i=0;i<cells.length;i++) cells[i].className='sc';
+}
+
+function showSketch() {
+  showScreen('sketch-screen');
+  if(sketchData.length === 0) initSketch();
+}
+
+// ===================== MAZE =====================
+var DIFFS = [
+  {name:'Leicht',   cols:11, rows:13, cell:18},
+  {name:'Mittel',   cols:15, rows:19, cell:16},
+  {name:'Schwer',   cols:21, rows:27, cell:13},
+  {name:'Experte',  cols:27, rows:35, cell:11},
+];
+var diffIdx = 1;
+var mazeGrid = [];
+var mazeW = 0, mazeH = 0;
+var playerX = 0, playerY = 0;
+var mazeSteps = 0;
+var mazeSolved = false;
+var showSol = false;
+var solution = [];
+
+// Maze generation: Recursive backtracker
+// Each cell: walls [N,E,S,W] = [0,1,2,3]
+var N=0,E=1,S=2,W=3;
+var DX = [0,1,0,-1];
+var DY = [-1,0,1,0];
+var OPP = [2,3,0,1];
+
+function initMazeGrid(w,h) {
+  mazeW=w; mazeH=h;
+  mazeGrid=[];
+  for(var y=0;y<h;y++){
+    mazeGrid.push([]);
+    for(var x=0;x<w;x++){
+      mazeGrid[y].push({walls:[1,1,1,1], visited:false});
+    }
+  }
+}
+
+function generateMaze(w,h) {
+  initMazeGrid(w,h);
+  var stack=[];
+  var cx=0,cy=0;
+  mazeGrid[cy][cx].visited=true;
+  var visited=1, total=w*h;
+  stack.push({x:cx,y:cy});
+  while(visited<total){
+    var dirs=[0,1,2,3];
+    // shuffle dirs
+    for(var i=dirs.length-1;i>0;i--){
+      var j=Math.floor(Math.random()*(i+1));
+      var tmp=dirs[i];dirs[i]=dirs[j];dirs[j]=tmp;
+    }
+    var moved=false;
+    for(var d=0;d<4;d++){
+      var dir=dirs[d];
+      var nx=cx+DX[dir], ny=cy+DY[dir];
+      if(nx>=0&&nx<w&&ny>=0&&ny<h&&!mazeGrid[ny][nx].visited){
+        mazeGrid[cy][cx].walls[dir]=0;
+        mazeGrid[ny][nx].walls[OPP[dir]]=0;
+        mazeGrid[ny][nx].visited=true;
+        stack.push({x:nx,y:ny});
+        cx=nx;cy=ny;
+        visited++;
+        moved=true;
+        break;
+      }
+    }
+    if(!moved&&stack.length>0){
+      var prev=stack.pop();
+      cx=prev.x;cy=prev.y;
+    }
+  }
+}
+
+function solveMaze() {
+  // BFS from (0,0) to (mazeW-1,mazeH-1)
+  var visited2=[];
+  var prev=[];
+  for(var y=0;y<mazeH;y++){
+    visited2.push([]);prev.push([]);
+    for(var x=0;x<mazeW;x++){visited2[y].push(false);prev[y].push(null);}
+  }
+  var queue=[{x:0,y:0}];
+  visited2[0][0]=true;
+  while(queue.length>0){
+    var cur=queue.shift();
+    if(cur.x===mazeW-1&&cur.y===mazeH-1) break;
+    for(var d=0;d<4;d++){
+      if(mazeGrid[cur.y][cur.x].walls[d]===0){
+        var nx=cur.x+DX[d],ny=cur.y+DY[d];
+        if(nx>=0&&nx<mazeW&&ny>=0&&ny<mazeH&&!visited2[ny][nx]){
+          visited2[ny][nx]=true;
+          prev[ny][nx]={x:cur.x,y:cur.y};
+          queue.push({x:nx,y:ny});
+        }
+      }
+    }
+  }
+  // trace back
+  solution=[];
+  var cx=mazeW-1,cy=mazeH-1;
+  while(cx!==0||cy!==0){
+    solution.push({x:cx,y:cy});
+    var p=prev[cy][cx];
+    if(!p) break;
+    cx=p.x;cy=p.y;
+  }
+  solution.push({x:0,y:0});
+  solution.reverse();
+}
+
+function drawMaze() {
+  var diff = DIFFS[diffIdx];
+  var cs = diff.cell;
+  var canvas = document.getElementById('maze-canvas');
+  var W2 = mazeW*cs+2, H2 = mazeH*cs+2;
+  canvas.width=W2; canvas.height=H2;
+  var ctx=canvas.getContext('2d');
+  ctx.fillStyle='#fff';
+  ctx.fillRect(0,0,W2,H2);
+
+  // Draw solution if shown
+  if(showSol) {
+    ctx.fillStyle='#ddd';
+    for(var i=0;i<solution.length;i++){
+      ctx.fillRect(1+solution[i].x*cs+2, 1+solution[i].y*cs+2, cs-4, cs-4);
+    }
+  }
+
+  // Draw walls
+  ctx.strokeStyle='#000';
+  ctx.lineWidth=2;
+  for(var y=0;y<mazeH;y++){
+    for(var x=0;x<mazeW;x++){
+      var px=1+x*cs, py=1+y*cs;
+      var cell=mazeGrid[y][x];
+      if(cell.walls[N]){ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+cs,py);ctx.stroke();}
+      if(cell.walls[E]){ctx.beginPath();ctx.moveTo(px+cs,py);ctx.lineTo(px+cs,py+cs);ctx.stroke();}
+      if(cell.walls[S]){ctx.beginPath();ctx.moveTo(px,py+cs);ctx.lineTo(px+cs,py+cs);ctx.stroke();}
+      if(cell.walls[W]){ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px,py+cs);ctx.stroke();}
+    }
+  }
+
+  // Draw goal
+  var gx=1+(mazeW-1)*cs, gy=1+(mazeH-1)*cs;
+  ctx.fillStyle='#000';
+  ctx.font='bold '+(cs-2)+'px Georgia';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText('★', gx+cs/2, gy+cs/2);
+
+  // Draw player
+  var ppx=1+playerX*cs, ppy=1+playerY*cs;
+  ctx.fillStyle='#000';
+  ctx.beginPath();
+  ctx.arc(ppx+cs/2, ppy+cs/2, cs/2-3, 0, Math.PI*2);
+  ctx.fill();
+
+  // Start marker
+  ctx.fillStyle='#fff';
+  ctx.font='bold '+(cs-4)+'px Georgia';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText('S', 1+cs/2, 1+cs/2);
+}
+
+function newMaze() {
+  var diff=DIFFS[diffIdx];
+  mazeSolved=false; showSol=false; mazeSteps=0;
+  playerX=0; playerY=0;
+  generateMaze(diff.cols, diff.rows);
+  solveMaze();
+  document.getElementById('maze-win-msg').classList.remove('show');
+  document.getElementById('maze-steps-label').textContent='Schritte: 0';
+  document.getElementById('maze-size-label').textContent=diff.cols+'×'+diff.rows;
+  drawMaze();
+}
+
+function movePlayer(dx,dy) {
+  if(mazeSolved) return;
+  var nx=playerX+dx, ny=playerY+dy;
+  if(nx<0||nx>=mazeW||ny<0||ny>=mazeH) return;
+  // check wall
+  var dir=-1;
+  if(dx===1) dir=E;
+  else if(dx===-1) dir=W;
+  else if(dy===1) dir=S;
+  else if(dy===-1) dir=N;
+  if(mazeGrid[playerY][playerX].walls[dir]===1) return;
+  playerX=nx; playerY=ny; mazeSteps++;
+  document.getElementById('maze-steps-label').textContent='Schritte: '+mazeSteps;
+  drawMaze();
+  if(playerX===mazeW-1&&playerY===mazeH-1){
+    mazeSolved=true;
+    document.getElementById('maze-win-msg').classList.add('show');
+  }
+}
+
+function toggleSolution() {
+  showSol=!showSol;
+  drawMaze();
+}
+
+function cycleDiff() {
+  diffIdx=(diffIdx+1)%DIFFS.length;
+  document.getElementById('maze-diff-btn').textContent=DIFFS[diffIdx].name;
+  newMaze();
+}
+
+function showMaze() {
+  showScreen('maze-screen');
+  if(mazeGrid.length===0) newMaze();
+  else drawMaze();
+}
+
+// Keyboard support (for PC)
+document.addEventListener('keydown', function(e) {
+  var active = document.querySelector('.screen.active');
+  if(!active||active.id!=='maze-screen') return;
+  if(e.key==='ArrowUp'||e.key==='w') movePlayer(0,-1);
+  else if(e.key==='ArrowDown'||e.key==='s') movePlayer(0,1);
+  else if(e.key==='ArrowLeft'||e.key==='a') movePlayer(-1,0);
+  else if(e.key==='ArrowRight'||e.key==='d') movePlayer(1,0);
+});
+</script>
+</body>
+</html>
